@@ -1,0 +1,26 @@
+# --- Neovim runtime files ---
+*.swp
+*.swo
+.*.swp
+.*.swo
+*~
+
+# --- Neovim state directories (if accidentally placed here) ---
+.local/
+.cache/
+shada/
+
+# --- Lazy.nvim transient files ---
+*.lock
+!lazy-lock.json
+
+# --- Local overrides (machine-specific, never share) ---
+lua/local.lua
+lua/config/local.lua
+
+# --- Editor / OS junk ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
