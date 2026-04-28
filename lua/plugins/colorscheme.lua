@@ -9,12 +9,7 @@ return {
   {
     "rebelot/kanagawa.nvim",
 
-    -- priority = 1000 заставляет colorscheme загрузиться РАНЬШЕ всех остальных
-    -- плагинов. Иначе lualine и прочие могут успеть посчитать цвета по
-    -- дефолтной теме и закэшировать их.
     priority = 1000,
-
-    -- lazy = false — colorscheme не ленивая, нужна сразу при старте.
     lazy = false,
 
     opts = {
@@ -25,8 +20,8 @@ return {
       keywordStyle = { italic = false },
       statementStyle = { bold = true },
       typeStyle = {},
-      transparent = true,            -- прозрачный основной фон
-      dimInactive = false,           -- не затемнять неактивные сплиты
+      transparent = true,
+      dimInactive = false,
       terminalColors = true,
       theme = "wave",
       background = {
@@ -35,8 +30,7 @@ return {
       },
 
       -- Принудительно делаем gutter (колонку с номерами строк и значками)
-      -- прозрачным. Без этого kanagawa оставляет ему свой тёмный фон даже
-      -- при transparent=true.
+      -- прозрачным.
       colors = {
         theme = {
           all = {
@@ -47,14 +41,11 @@ return {
         },
       },
 
-      -- Очищаем фон у остальных UI-групп, которые kanagawa не трогает
-      -- при transparent=true: statusline, плавающие окна, sign column,
-      -- номера строк, конец буфера.
+      -- Прозрачность только для UI-зон редактора, НЕ для floating окон.
+      -- Floating окна (Lazy, hover, code actions, completion) должны иметь
+      -- непрозрачный фон, иначе текст в них нечитаем.
       overrides = function(_)
         return {
-          NormalFloat  = { bg = "none" },
-          FloatBorder  = { bg = "none" },
-          FloatTitle   = { bg = "none" },
           NormalNC     = { bg = "none" },
           SignColumn   = { bg = "none" },
           LineNr       = { bg = "none" },
