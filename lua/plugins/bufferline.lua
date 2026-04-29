@@ -38,5 +38,39 @@ return {
       { "[B",         "<cmd>BufferLineMovePrev<cr>",             desc = "Move buffer left" },
       { "]B",         "<cmd>BufferLineMoveNext<cr>",             desc = "Move buffer right" },
     },
+    config = function(_, opts)
+      require("bufferline").setup(opts)
+            do
+        local ft = vim.bo.filetype
+        if ft == "snacks_dashboard" or ft == "dashboard" or ft == "alpha" then
+          vim.opt.showtabline = 0
+        end
+      end
+
+      -- Скрыть tabline на дашборде. Когда буфер с filetype=snacks_dashboard
+      -- активен — глобальная опция showtabline=0 (полоса исчезает).
+      -- При выходе с дашборда возвращаем 2 (обычное поведение bufferline).
+      local group = vim.api.nvim_create_augroup("bufferline_hide_on_dashboard", { clear = true })
+
+      vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = { "snacks_dashboard", "dashboard", "alpha" },
+        callback = function()
+          vim.opt.showtabline = 0
+        end,
+      })
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+        group = group,
+        callback = function(args)
+          local ft = vim.bo[args.buf].filetype
+          if ft == "snacks_dashboard" or ft == "dashboard" or ft == "alpha" then
+            vim.opt.showtabline = 0
+          else
+            vim.opt.showtabline = 2
+          end
+        end,
+      })
+    end,
   },
 }
