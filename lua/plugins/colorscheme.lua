@@ -41,6 +41,7 @@ return {
 
         return {
           -- основные UI-зоны редактора — прозрачные
+          Normal       = { bg = "none", fg = theme.ui.fg },
           NormalNC     = { bg = "none" },
           SignColumn   = { bg = "none" },
           LineNr       = { bg = "none" },
@@ -48,6 +49,25 @@ return {
           StatusLine   = { bg = "none" },
           StatusLineNC = { bg = "none" },
           EndOfBuffer  = { bg = "none" },
+
+          -- floating-окна (telescope, hover, code actions, Lazy) — непрозрачный фон
+          NormalFloat  = { bg = theme.ui.bg_dim },
+          FloatBorder  = { bg = theme.ui.bg_dim, fg = theme.ui.bg_p2 },
+          FloatTitle   = { bg = theme.ui.bg_dim, fg = theme.ui.special, bold = true },
+          
+          -- telescope — явные группы, иначе наследует прозрачность от Normal
+          TelescopeNormal         = { bg = theme.ui.bg_dim },
+          TelescopePromptNormal   = { bg = theme.ui.bg_m1 },
+          TelescopeResultsNormal  = { bg = theme.ui.bg_dim },
+          TelescopePreviewNormal  = { bg = theme.ui.bg_dim },
+          TelescopeBorder         = { bg = theme.ui.bg_dim, fg = theme.ui.bg_p2 },
+          TelescopePromptBorder   = { bg = theme.ui.bg_m1, fg = theme.ui.bg_m1 },
+          TelescopeResultsBorder  = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+          TelescopePreviewBorder  = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+          TelescopePromptTitle    = { bg = theme.syn.fun,   fg = theme.ui.bg_dim, bold = true },
+          TelescopeResultsTitle   = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+          TelescopePreviewTitle   = { bg = theme.vcs.added, fg = theme.ui.bg_dim, bold = true },
+          TelescopeSelection      = { bg = theme.ui.bg_p1 },
 
           -- bufferline — сплошная плашка под всю ширину,
           -- чтобы полоса не "протекала" обоями справа.
