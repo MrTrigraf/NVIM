@@ -1,8 +1,5 @@
 -- ============================================================================
 -- lua/plugins/colorscheme.lua
--- Цветовая схема. kanagawa — японская тема, спокойные приглушённые цвета,
--- хорошо читается на тёмном терминале, отлично подходит для Go.
--- Та же схема, что у тебя в kitty — редактор и терминал визуально сливаются.
 -- ============================================================================
 
 return {
@@ -29,8 +26,6 @@ return {
         light = "lotus",
       },
 
-      -- Принудительно делаем gutter (колонку с номерами строк и значками)
-      -- прозрачным.
       colors = {
         theme = {
           all = {
@@ -41,11 +36,11 @@ return {
         },
       },
 
-      -- Прозрачность только для UI-зон редактора, НЕ для floating окон.
-      -- Floating окна (Lazy, hover, code actions, completion) должны иметь
-      -- непрозрачный фон, иначе текст в них нечитаем.
-      overrides = function(_)
+      overrides = function(colors)
+        local theme = colors.theme
+
         return {
+          -- основные UI-зоны редактора — прозрачные
           NormalNC     = { bg = "none" },
           SignColumn   = { bg = "none" },
           LineNr       = { bg = "none" },
@@ -53,6 +48,23 @@ return {
           StatusLine   = { bg = "none" },
           StatusLineNC = { bg = "none" },
           EndOfBuffer  = { bg = "none" },
+
+          -- bufferline — сплошная плашка под всю ширину,
+          -- чтобы полоса не "протекала" обоями справа.
+          BufferLineFill                = { bg = theme.ui.bg_dim },
+          BufferLineBackground          = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
+          BufferLineBufferVisible       = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
+          BufferLineBufferSelected      = { bg = theme.ui.bg_p1, fg = theme.ui.fg, bold = true },
+          BufferLineModified            = { bg = theme.ui.bg_dim, fg = theme.diag.warning },
+          BufferLineModifiedVisible     = { bg = theme.ui.bg_dim, fg = theme.diag.warning },
+          BufferLineModifiedSelected    = { bg = theme.ui.bg_p1, fg = theme.diag.warning },
+          BufferLineSeparator           = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+          BufferLineSeparatorVisible    = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+          BufferLineSeparatorSelected   = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+          BufferLineIndicatorSelected   = { bg = theme.ui.bg_p1, fg = theme.syn.fun },
+          BufferLineCloseButton         = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
+          BufferLineCloseButtonVisible  = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
+          BufferLineCloseButtonSelected = { bg = theme.ui.bg_p1, fg = theme.ui.fg },
         }
       end,
     },
