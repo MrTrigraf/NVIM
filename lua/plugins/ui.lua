@@ -5,7 +5,7 @@
 
 return {
   -- Плагин 1: mini.icons
-  {
+{
     "nvim-mini/mini.icons",
     lazy = true,
     opts = {},
