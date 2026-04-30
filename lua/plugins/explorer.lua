@@ -8,7 +8,6 @@ return {
     branch = "v3.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "echasnovski/mini.icons",
       "MunifTanjim/nui.nvim",
     },
     cmd = "Neotree",
@@ -18,7 +17,7 @@ return {
       vim.cmd("Neotree close")
     end,
 
-    -- Ленивая загрузка: если nvim открыт с папкой — подгрузить neo-tree
+    -- Ленивая загрузка: если nvim запущен с папкой (`nvim .`) — подгрузить neo-tree
     init = function()
       vim.api.nvim_create_autocmd("BufEnter", {
         group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
@@ -51,15 +50,9 @@ return {
     },
 
     opts = {
-      -- Объявляем все три источника явно
       sources = { "filesystem", "buffers", "git_status" },
-
       close_if_last_window = true,
-
-      -- Не перекрывать терминал, trouble, quickfix при открытии файла
-      open_files_do_not_replace_types = {
-        "terminal", "Trouble", "trouble", "qf",
-      },
+      open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf" },
 
       -- Вкладки File / Bufs / Git в шапке панели
       source_selector = {
@@ -76,24 +69,20 @@ return {
       },
 
       default_component_configs = {
+        -- Линии отступов и стрелки разворачивания
         indent = {
           indent_size        = 2,
+          padding            = 1,
           with_markers       = true,
-          indent_marker      = "│",
-          last_indent_marker = "└",
+          with_expanders     = true,
           highlight          = "NeoTreeIndentMarker",
-          -- Иконки разворачивания для вложенных файлов (как в LazyVim)
-          with_expanders        = true,
-          expander_collapsed    = "",
-          expander_expanded     = "",
-          expander_highlight    = "NeoTreeExpander",
+          expander_highlight = "NeoTreeExpander",
+          -- символы expander_collapsed/expanded задаются в config через nr2char
+          -- из-за проблем с кодировкой Unicode при редактировании файла
         },
+        -- Иконки папок и дефолтная иконка файла (задаются в config)
         icon = {
-          folder_closed = "",
-          folder_open   = "",
-          folder_empty  = "",
-          default       = "",
-          highlight     = "NeoTreeFileIcon",
+          highlight = "NeoTreeFileIcon",
         },
         modified = {
           symbol    = "●",
@@ -103,6 +92,7 @@ return {
           trailing_slash        = false,
           use_git_status_colors = true,
         },
+        -- ASCII-символы git-статуса — гарантированно рендерятся в любом терминале
         git_status = {
           symbols = {
             added     = "A",
@@ -118,18 +108,18 @@ return {
         },
       },
 
+      -- Глобальные маппинги — работают во всех трёх вкладках (File/Bufs/Git)
       window = {
         position = "left",
-        width    = 35,
+        width    = 32,
         mappings = {
-          -- Открыть / закрыть узел (эргономика как в vim: l вправо, h влево)
+          -- Открыть файл / развернуть папку
           ["l"]     = "open",
           ["h"]     = "close_node",
           ["<cr>"]  = "open",
           -- Открыть в сплитах
           ["v"]     = "open_vsplit",
           ["s"]     = "open_split",
-          -- Превью без перехода фокуса
           ["P"]     = { "toggle_preview", config = { use_float = true } },
           -- Операции с файлами
           ["a"]     = { "add", config = { show_path = "relative" } },
@@ -142,32 +132,28 @@ return {
           ["x"]     = "cut_to_clipboard",
           ["p"]     = "paste_from_clipboard",
           -- Скопировать полный путь файла в системный буфер обмена
-          ["Y"]     = {
+          ["Y"] = {
             function(state)
-              local node = state.tree:get_node()
-              vim.fn.setreg("+", node:get_id(), "c")
+              vim.fn.setreg("+", state.tree:get_node():get_id(), "c")
             end,
             desc = "Copy path to clipboard",
           },
           -- Открыть файл системным приложением (xdg-open на Linux)
-          ["O"]     = {
+          ["O"] = {
             function(state)
-              local node = state.tree:get_node()
-              vim.fn.jobstart({ "xdg-open", node.path }, { detach = true })
+              vim.fn.jobstart({ "xdg-open", state.tree:get_node().path }, { detach = true })
             end,
             desc = "Open with system application",
           },
-          -- Навигация
           ["R"]     = "refresh",
-          -- Закрыть панель
           ["q"]     = "close_window",
           ["<esc>"] = "close_window",
         },
       },
 
       filesystem = {
-        bind_to_cwd           = false,
-        follow_current_file   = { enabled = true, leave_dirs_open = false },
+        bind_to_cwd            = false,
+        follow_current_file    = { enabled = true, leave_dirs_open = false },
         use_libuv_file_watcher = true,
         filtered_items = {
           visible         = false,
@@ -175,7 +161,7 @@ return {
           hide_gitignored = true,
           hide_by_name    = { ".git", "node_modules" },
         },
-        -- Маппинги только для вкладки File
+        -- Маппинги только для вкладки File (не работают в Bufs/Git)
         window = {
           mappings = {
             ["H"] = "toggle_hidden",
@@ -190,31 +176,32 @@ return {
       vim.g.loaded_netrw       = 1
       vim.g.loaded_netrwPlugin = 1
 
-      -- Инициализируем mini.icons до neo-tree
-      require("mini.icons").setup({ style = "glyph" })
-      require("mini.icons").mock_nvim_web_devicons()
-
-      -- Цвета иконок neo-tree
-      local function set_highlights()
-        vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = "#e0af68" })
-        vim.api.nvim_set_hl(0, "NeoTreeDirectoryName", { fg = "#7dcfff" })
-        vim.api.nvim_set_hl(0, "NeoTreeRootName",      { fg = "#bb9af7", bold = true })
-        vim.api.nvim_set_hl(0, "NeoTreeFileName",      { fg = "#c0caf5" })
-        vim.api.nvim_set_hl(0, "NeoTreeFileIcon",      { fg = "#7aa2f7" })
-      end
-
-      set_highlights()
-      vim.api.nvim_create_autocmd("ColorScheme", { callback = set_highlights })
+      -- Unicode-символы задаются здесь через nr2char,
+      -- потому что копирование иконок через чат портит кодировку
+      opts.default_component_configs.icon.folder_closed       = vim.fn.nr2char(0xe5ff)
+      opts.default_component_configs.icon.folder_open         = vim.fn.nr2char(0xe5fe)
+      opts.default_component_configs.icon.folder_empty        = vim.fn.nr2char(0xe5fd)
+      opts.default_component_configs.icon.default             = vim.fn.nr2char(0xf15b)
+      opts.default_component_configs.indent.expander_collapsed = vim.fn.nr2char(0xf0142)
+      opts.default_component_configs.indent.expander_expanded  = vim.fn.nr2char(0xf0140)
 
       require("neo-tree").setup(opts)
 
-      -- Обновить git-статус в neo-tree после закрытия lazygit (Блок 9)
+      -- Обновить git-статус в neo-tree после закрытия lazygit
       vim.api.nvim_create_autocmd("TermClose", {
         pattern = "*lazygit",
         callback = function()
           if package.loaded["neo-tree.sources.git_status"] then
             require("neo-tree.sources.git_status").refresh()
           end
+        end,
+      })
+
+      -- Убрать подсветку текущей строки в панели neo-tree (как в LazyVim)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "neo-tree",
+        callback = function()
+          vim.opt_local.cursorline = false
         end,
       })
     end,

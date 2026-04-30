@@ -54,7 +54,12 @@ return {
           NormalFloat  = { bg = theme.ui.bg_dim },
           FloatBorder  = { bg = theme.ui.bg_dim, fg = theme.ui.bg_p2 },
           FloatTitle   = { bg = theme.ui.bg_dim, fg = theme.ui.special, bold = true },
-          
+          NeoTreeDirectoryIcon = { fg = "#e0af68" },  -- жёлтая иконка папки
+          NeoTreeDirectoryName = { fg = "#7dcfff" },  -- голубое имя папки
+          NeoTreeRootName      = { fg = "#bb9af7", bold = true }, -- фиолетовый корень
+          NeoTreeExpander     = { fg = "#7aa2f7" },  -- синие стрелки ▸/▾
+          NeoTreeIndentMarker = { fg = "#bb9af7" },  -- приглушённые линии отступов
+
           -- telescope — явные группы, иначе наследует прозрачность от Normal
           TelescopeNormal         = { bg = theme.ui.bg_dim },
           TelescopePromptNormal   = { bg = theme.ui.bg_m1 },

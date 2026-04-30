@@ -4,22 +4,31 @@
 -- ============================================================================
 
 return {
+  -- Плагин 1: mini.icons
+  {
+    "nvim-mini/mini.icons",
+    lazy = true,
+    opts = {},
+    init = function()
+      package.preload["nvim-web-devicons"] = function()
+        require("mini.icons").mock_nvim_web_devicons()
+        return package.loaded["nvim-web-devicons"]
+      end
+    end,
+  },
+
+  -- Плагин 2: nvim-web-devicons (fallback)
   {
     "nvim-tree/nvim-web-devicons",
-    lazy = true,                  -- грузится по запросу другими плагинами
+    lazy = true,
     opts = {
-      -- цвет иконок берётся из текущей темы
       color_icons = true,
-      default = true,             -- показывать дефолтную иконку для незнакомых типов
+      default = true,
       strict = true,
     },
   },
 
-  -- ==========================================================================
-  -- which-key.nvim — попап-подсказка по биндингам.
-  -- Нажимаешь <leader> (Space) и ждёшь — снизу всплывает таблица
-  -- всех возможных продолжений с описаниями.
-  -- ==========================================================================
+  -- Плагин 3: which-key
   {
     "folke/which-key.nvim",
     event = "VeryLazy",           -- грузится сразу после старта, но не блокируя его
@@ -59,10 +68,7 @@ return {
     },
   },
 
-  -- ==========================================================================
-  -- lualine.nvim — статус-строка.
-  -- Показывает режим, git-ветку, файл, диагностики, тип файла, позицию.
-  -- ==========================================================================
+   -- Плагин 4: lualine
   {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
