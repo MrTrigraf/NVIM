@@ -1,219 +1,66 @@
--- lua/plugins/explorer.lua
--- Neo-tree — дерево файлов в левом сплите.
--- В VS Code аналог: Ctrl+Shift+E (панель Explorer).
+-- ============================================================================
+-- lua/plugins/bufferline.lua
+-- Верхняя полоса с табами по числу открытых буферов.
+-- ============================================================================
 
 return {
   {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "echasnovski/mini.icons",
-      "MunifTanjim/nui.nvim",
+    "akinsho/bufferline.nvim",
+    enabled = false,           -- ← плагин временно отключён 
+    event = "VeryLazy",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      options = {
+        mode = "buffers",
+        diagnostics = "nvim_lsp",
+        show_buffer_close_icons = false,
+        show_close_icon = false,
+        separator_style = "thin",
+        always_show_bufferline = true,
+        offsets = {
+          {
+            filetype = "neo-tree",
+            text = "",
+            highlight = "Directory",
+            text_align = "left",
+            separator = true,
+          },
+        },
+      },
     },
-    cmd = "Neotree",
+    keys = {
+      { "<leader>bp", "<cmd>BufferLineTogglePin<cr>",            desc = "Pin buffer" },
+      { "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<cr>", desc = "Close non-pinned" },
+      { "<leader>bo", "<cmd>BufferLineCloseOthers<cr>",          desc = "Close other buffers" },
+      { "<leader>br", "<cmd>BufferLineCloseRight<cr>",           desc = "Close buffers to the right" },
+      { "<leader>bl", "<cmd>BufferLineCloseLeft<cr>",            desc = "Close buffers to the left" },
+      { "[b",         "<cmd>BufferLineCyclePrev<cr>",            desc = "Prev buffer (bufferline)" },
+      { "]b",         "<cmd>BufferLineCycleNext<cr>",            desc = "Next buffer (bufferline)" },
+      { "[B",         "<cmd>BufferLineMovePrev<cr>",             desc = "Move buffer left" },
+      { "]B",         "<cmd>BufferLineMoveNext<cr>",             desc = "Move buffer right" },
+    },
+    config = function(_, opts)
+      require("bufferline").setup(opts)
 
-    -- Корректное закрытие при деактивации плагина
-    deactivate = function()
-      vim.cmd("Neotree close")
-    end,
+      -- Скрыть tabline на дашборде
+      local group = vim.api.nvim_create_augroup("bufferline_hide_on_dashboard", { clear = true })
 
-    -- Ленивая загрузка: если nvim открыт с папкой — подгрузить neo-tree
-    init = function()
-      vim.api.nvim_create_autocmd("BufEnter", {
-        group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
-        once = true,
+      vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = { "snacks_dashboard", "dashboard", "alpha" },
         callback = function()
-          if package.loaded["neo-tree"] then return end
-          local stats = vim.uv.fs_stat(vim.fn.argv(0))
-          if stats and stats.type == "directory" then
-            require("neo-tree")
-          end
+          vim.opt.showtabline = 0
         end,
       })
-    end,
 
-    keys = {
-      {
-        "<leader>e",
-        function()
-          require("neo-tree.command").execute({ toggle = true, dir = vim.uv.cwd() })
-        end,
-        desc = "Explorer (neo-tree)",
-      },
-      {
-        "<leader>E",
-        function()
-          require("neo-tree.command").execute({ toggle = true, dir = vim.fn.expand("%:p:h") })
-        end,
-        desc = "Explorer (current file dir)",
-      },
-    },
-
-    opts = {
-      -- Объявляем все три источника явно
-      sources = { "filesystem", "buffers", "git_status" },
-
-      close_if_last_window = true,
-
-      -- Не перекрывать терминал, trouble, quickfix при открытии файла
-      open_files_do_not_replace_types = {
-        "terminal", "Trouble", "trouble", "qf",
-      },
-
-      -- Вкладки File / Bufs / Git в шапке панели
-      source_selector = {
-        winbar         = true,
-        statusline     = false,
-        sources        = {
-          { source = "filesystem", display_name = " File" },
-          { source = "buffers",    display_name = "󰈙 Bufs" },
-          { source = "git_status", display_name = " Git"  },
-        },
-        content_layout = "center",
-        tabs_layout    = "equal",
-        separator      = { left = "▏", right = "▕" },
-      },
-
-      default_component_configs = {
-        indent = {
-          indent_size        = 2,
-          with_markers       = true,
-          indent_marker      = "│",
-          last_indent_marker = "└",
-          highlight          = "NeoTreeIndentMarker",
-          -- Иконки разворачивания для вложенных файлов (как в LazyVim)
-          with_expanders        = true,
-          expander_collapsed    = "",
-          expander_expanded     = "",
-          expander_highlight    = "NeoTreeExpander",
-        },
-        icon = {
-          folder_closed = "",
-          folder_open   = "",
-          folder_empty  = "",
-          default       = "",
-          highlight     = "NeoTreeFileIcon",
-        },
-        modified = {
-          symbol    = "●",
-          highlight = "NeoTreeModified",
-        },
-        name = {
-          trailing_slash        = false,
-          use_git_status_colors = true,
-        },
-        git_status = {
-          symbols = {
-            added     = "A",
-            modified  = "M",
-            deleted   = "D",
-            renamed   = "R",
-            untracked = "?",
-            ignored   = "!",
-            unstaged  = "U",
-            staged    = "S",
-            conflict  = "C",
-          },
-        },
-      },
-
-      window = {
-        position = "left",
-        width    = 35,
-        mappings = {
-          -- Открыть / закрыть узел (эргономика как в vim: l вправо, h влево)
-          ["l"]     = "open",
-          ["h"]     = "close_node",
-          ["<cr>"]  = "open",
-          -- Открыть в сплитах
-          ["v"]     = "open_vsplit",
-          ["s"]     = "open_split",
-          -- Превью без перехода фокуса
-          ["P"]     = { "toggle_preview", config = { use_float = true } },
-          -- Операции с файлами
-          ["a"]     = { "add", config = { show_path = "relative" } },
-          ["A"]     = "add_directory",
-          ["d"]     = "delete",
-          ["r"]     = "rename",
-          ["c"]     = "copy",
-          ["m"]     = "move",
-          ["y"]     = "copy_to_clipboard",
-          ["x"]     = "cut_to_clipboard",
-          ["p"]     = "paste_from_clipboard",
-          -- Скопировать полный путь файла в системный буфер обмена
-          ["Y"]     = {
-            function(state)
-              local node = state.tree:get_node()
-              vim.fn.setreg("+", node:get_id(), "c")
-            end,
-            desc = "Copy path to clipboard",
-          },
-          -- Открыть файл системным приложением (xdg-open на Linux)
-          ["O"]     = {
-            function(state)
-              local node = state.tree:get_node()
-              vim.fn.jobstart({ "xdg-open", node.path }, { detach = true })
-            end,
-            desc = "Open with system application",
-          },
-          -- Навигация
-          ["R"]     = "refresh",
-          -- Закрыть панель
-          ["q"]     = "close_window",
-          ["<esc>"] = "close_window",
-        },
-      },
-
-      filesystem = {
-        bind_to_cwd           = false,
-        follow_current_file   = { enabled = true, leave_dirs_open = false },
-        use_libuv_file_watcher = true,
-        filtered_items = {
-          visible         = false,
-          hide_dotfiles   = false,
-          hide_gitignored = true,
-          hide_by_name    = { ".git", "node_modules" },
-        },
-        -- Маппинги только для вкладки File
-        window = {
-          mappings = {
-            ["H"] = "toggle_hidden",
-            ["<"] = "navigate_up",
-            ["."] = "set_root",
-          },
-        },
-      },
-    },
-
-    config = function(_, opts)
-      vim.g.loaded_netrw       = 1
-      vim.g.loaded_netrwPlugin = 1
-
-      -- Инициализируем mini.icons до neo-tree
-      require("mini.icons").setup({ style = "glyph" })
-      require("mini.icons").mock_nvim_web_devicons()
-
-      -- Цвета иконок neo-tree
-      local function set_highlights()
-        vim.api.nvim_set_hl(0, "NeoTreeDirectoryIcon", { fg = "#e0af68" })
-        vim.api.nvim_set_hl(0, "NeoTreeDirectoryName", { fg = "#7dcfff" })
-        vim.api.nvim_set_hl(0, "NeoTreeRootName",      { fg = "#bb9af7", bold = true })
-        vim.api.nvim_set_hl(0, "NeoTreeFileName",      { fg = "#c0caf5" })
-        vim.api.nvim_set_hl(0, "NeoTreeFileIcon",      { fg = "#7aa2f7" })
-      end
-
-      set_highlights()
-      vim.api.nvim_create_autocmd("ColorScheme", { callback = set_highlights })
-
-      require("neo-tree").setup(opts)
-
-      -- Обновить git-статус в neo-tree после закрытия lazygit (Блок 9)
-      vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*lazygit",
-        callback = function()
-          if package.loaded["neo-tree.sources.git_status"] then
-            require("neo-tree.sources.git_status").refresh()
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+        group = group,
+        callback = function(args)
+          local ft = vim.bo[args.buf].filetype
+          if ft == "snacks_dashboard" or ft == "dashboard" or ft == "alpha" then
+            vim.opt.showtabline = 0
+          else
+            vim.opt.showtabline = 2
           end
         end,
       })

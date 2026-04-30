@@ -197,30 +197,36 @@ autocmd("FileType", {
   end,
 })
 
--- Авто-открытие neo-tree при первом открытии файла (включая через дашборд)
+-- Авто-открытие/обновление neo-tree при смене корня проекта
 vim.api.nvim_create_autocmd("BufReadPost", {
   group = vim.api.nvim_create_augroup("auto_open_neotree", { clear = true }),
   callback = function(args)
-    -- Игнорируем спец-буферы (дашборд, help, terminal и т.д.)
     local buftype = vim.bo[args.buf].buftype
     if buftype ~= "" then return end
 
-    -- Игнорируем если файла на диске нет
     local bufname = vim.api.nvim_buf_get_name(args.buf)
     if bufname == "" or vim.fn.filereadable(bufname) ~= 1 then return end
 
-    -- Проверяем что neo-tree ещё не открыт
-    -- (ищем окно с filetype=neo-tree)
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-      local buf = vim.api.nvim_win_get_buf(win)
-      if vim.bo[buf].filetype == "neo-tree" then
-        return -- уже открыт, ничего не делаем
-      end
-    end
+    local root = vim.fs.root(bufname, {
+      ".git", "go.mod", "package.json", "Cargo.toml", "pyproject.toml", "Makefile",
+    }) or vim.fn.fnamemodify(bufname, ":h")
 
-    -- Открываем neo-tree и возвращаем фокус на файл
+    if vim.fn.getcwd() == root then return end
+
     vim.schedule(function()
-      vim.cmd("Neotree show")
+      vim.cmd("tcd " .. vim.fn.fnameescape(root))
+
+      local manager = require("neo-tree.sources.manager")
+      pcall(manager.close_all)
+
+      require("neo-tree.command").execute({
+        action   = "show",
+        source   = "filesystem",
+        position = "left",
+        dir      = root,
+        reveal   = false,
+      })
+
       vim.cmd("wincmd p")
     end)
   end,
