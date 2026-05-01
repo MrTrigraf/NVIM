@@ -96,32 +96,30 @@ return {
       },
     },
     init = function()
-      -- Эти настройки нужно задать ДО загрузки UFO
       vim.o.foldcolumn     = "1"
       vim.o.foldlevel      = 99
       vim.o.foldlevelstart = 99
       vim.o.foldenable     = true
 
-      -- fillchars задаём через таблицу, символы через code-points
-      -- (избегаем проблем с кодировкой при копировании через чат)
       vim.opt.fillchars:append({
-        eob       = " ",
         fold      = " ",
-        foldopen  = vim.fn.nr2char(0xeab4),  -- ▾
+        foldopen  = vim.fn.nr2char(0xeab4),
         foldsep   = " ",
-        foldclose = vim.fn.nr2char(0xeab6),  -- ▸
+        foldclose = vim.fn.nr2char(0xeab6),
       })
 
       -- Цвет стрелочек сворачивания (foldopen/foldclose) как в VS Code
+      local fold_fg = "#7A8382"
+      vim.api.nvim_set_hl(0, "FoldColumn", { fg = fold_fg, bg = "NONE" })
+      vim.api.nvim_set_hl(0, "Folded",     { fg = fold_fg, bg = "NONE" })
+
+      -- При смене темы обновляем цвет, чтобы не сбился
       vim.api.nvim_create_autocmd("ColorScheme", {
         callback = function()
-          vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#7a8794", bg = "NONE" })
-          vim.api.nvim_set_hl(0, "Folded",     { fg = "#7a8794", bg = "NONE" })
+          vim.api.nvim_set_hl(0, "FoldColumn", { fg = fold_fg, bg = "NONE" })
+          vim.api.nvim_set_hl(0, "Folded",     { fg = fold_fg, bg = "NONE" })
         end,
       })
-      -- Применить сразу при загрузке
-      vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#7a8794", bg = "NONE" })
-      vim.api.nvim_set_hl(0, "Folded",     { fg = "#7a8794", bg = "NONE" })
     end,
     opts = {
       -- Провайдеры folding'а в порядке приоритета.

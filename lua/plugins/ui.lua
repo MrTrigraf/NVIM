@@ -16,7 +16,6 @@ return {
       end
     end,
   },
-
   -- Плагин 2: nvim-web-devicons (fallback)
   {
     "nvim-tree/nvim-web-devicons",
@@ -69,15 +68,16 @@ return {
     },
   },
 
-   -- Плагин 4: lualine
+  -- Плагин 4: lualine
   {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        theme = "kanagawa",                 -- единая палитра с colorscheme
-        globalstatus = true,                -- одна общая statusline на все сплиты
+        -- Тема задаётся в config, чтобы использовать встроенные цвета kanagawa-paper.
+        -- Здесь можно оставить заглушку.
+        globalstatus = true,
         icons_enabled = true,
         component_separators = { left = "│", right = "│" },
         section_separators   = { left = "",  right = "" },
@@ -86,47 +86,38 @@ return {
         },
       },
       sections = {
-        -- слева направо: a → b → c
-        lualine_a = { "mode" },             -- NORMAL/INSERT/VISUAL и т.п.
+        lualine_a = { "mode" },
         lualine_b = {
-          { "branch", icon = "" },        -- git-ветка
-          {
-            "diff",                          -- +добавлено / ~изменено / -удалено
-            symbols = { added = " ", modified = " ", removed = " " },
-          },
+          { "branch", icon = "" },
+          { "diff", symbols = { added = " ", modified = " ", removed = " " } },
         },
         lualine_c = {
           {
-            "diagnostics",                   -- LSP-диагностики
-            symbols = {
-              error = " ",
-              warn  = " ",
-              info  = " ",
-              hint  = " ",
-            },
+            "diagnostics",
+            symbols = { error = " ", warn = " ", info = " ", hint = " " },
           },
           {
             "filename",
-            path = 1,                        -- 0=имя, 1=относительный путь, 2=абсолютный
-            symbols = {
-              modified = "●",
-              readonly = "",
-              unnamed  = "[No Name]",
-            },
+            path = 1,
+            symbols = { modified = "●", readonly = "", unnamed = "[No Name]" },
           },
         },
-        -- справа налево: x → y → z
         lualine_x = {
-          "encoding",                        -- utf-8 и т.п.
-          {
-            "fileformat",                    -- unix / dos / mac
-            symbols = { unix = "", dos = "", mac = "" },
-          },
+          "encoding",
+          { "fileformat", symbols = { unix = "", dos = "", mac = "" } },
           "filetype",
         },
-        lualine_y = { "progress" },          -- 35% — прокрутка по файлу
-        lualine_z = { "location" },          -- 19:4 — строка:колонка
+        lualine_y = { "progress" },
+        lualine_z = { "location" },
       },
     },
+    config = function(_, opts)
+      -- Устанавливаем тему lualine в зависимости от background, используя
+      -- встроенные темы kanagawa-paper (ink для dark, canvas для light).
+      local theme_name = vim.o.background == "light" and "kanagawa-paper-canvas" or "kanagawa-paper-ink"
+      local ok, theme = pcall(require, "lualine.themes." .. theme_name)
+      opts.options.theme = ok and theme or "auto"
+      require("lualine").setup(opts)
+    end,
   },
 }

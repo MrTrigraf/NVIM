@@ -4,7 +4,7 @@
   "grug-far.nvim": { "branch": "main", "commit": "21790e59dd0109a92a70cb874dd002af186314f5" },
   "harpoon": { "branch": "harpoon2", "commit": "87b1a3506211538f460786c23f98ec63ad9af4e5" },
   "indent-blankline.nvim": { "branch": "master", "commit": "d28a3f70721c79e3c5f6693057ae929f3d9c0a03" },
-  "kanagawa.nvim": { "branch": "master", "commit": "8ad3b4cdcc804b332c32db8f9743667e1bb82b99" },
+  "kanagawa-paper.nvim": { "branch": "master", "commit": "3a024e8fd7105ee9416aafcdb0a7787be1795d68" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "lualine.nvim": { "branch": "master", "commit": "131a558e13f9f28b15cd235557150ccb23f89286" },
   "mini.icons": { "branch": "main", "commit": "bac6317300e205335df425296570d84322730067" },
