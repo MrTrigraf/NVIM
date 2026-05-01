@@ -183,9 +183,10 @@ autocmd("FileType", {
   group = group,
   desc = "Close helper windows with q",
   pattern = {
-    "help", "man", "qf", "checkhealth", "lspinfo", "notify",
+        "help", "man", "qf", "checkhealth", "lspinfo", "notify",
     "startuptime", "tsplayground", "PlenaryTestPopup", "neotest-output",
     "neotest-summary", "neotest-output-panel",
+    "snacks_dashboard", 
   },
   callback = function(args)
     vim.bo[args.buf].buflisted = false

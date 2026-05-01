@@ -158,3 +158,11 @@ vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
+
+-- ──────────────────────────────────────────────────────────────────────
+-- Единый стиль floating-окон
+-- ──────────────────────────────────────────────────────────────────────
+-- Все плавающие окна (LSP hover, code actions, :Lazy, diagnostic float)
+-- получают одинаковую rounded-рамку. Конкретные плагины могут переопределить,
+-- но дефолт у всех будет один.
+vim.o.winborder = "rounded"
