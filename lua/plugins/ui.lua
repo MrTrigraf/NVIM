@@ -49,6 +49,7 @@ return {
         { "<leader>g", group = "git" },
         { "<leader>h", group = "harpoon" },
         { "<leader>l", group = "lsp" },
+        { "<leader>o", group = "outline" },
         { "<leader>s", group = "search/replace" },
         { "<leader>t", group = "tests" },
         { "<leader>x", group = "diagnostics" },

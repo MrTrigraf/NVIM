@@ -6,7 +6,7 @@
 return {
   {
     "akinsho/bufferline.nvim",
-    enabled = false,           -- ← плагин временно отключён 
+    enabled = false,           
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
