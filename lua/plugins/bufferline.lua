@@ -6,24 +6,24 @@
 return {
   {
     "akinsho/bufferline.nvim",
-    enabled = false,           
+    enabled = true,
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        mode = "buffers",
-        diagnostics = "nvim_lsp",
+        mode                    = "buffers",
+        diagnostics             = "nvim_lsp",
         show_buffer_close_icons = false,
-        show_close_icon = false,
-        separator_style = "thin",
-        always_show_bufferline = true,
+        show_close_icon         = false,
+        separator_style         = "thin",
+        always_show_bufferline  = false,
         offsets = {
           {
-            filetype = "neo-tree",
-            text = "",
-            highlight = "Directory",
+            filetype   = "neo-tree",
+            text       = "",
+            highlight  = "Directory",
             text_align = "left",
-            separator = true,
+            separator  = true,
           },
         },
       },
@@ -42,18 +42,11 @@ return {
     config = function(_, opts)
       require("bufferline").setup(opts)
 
-      -- Скрыть tabline на дашборде
+      -- Скрываем tabline на дашборде, чтобы стартовый экран не дрался
+      -- с верхней полосой буферов
       local group = vim.api.nvim_create_augroup("bufferline_hide_on_dashboard", { clear = true })
 
-      vim.api.nvim_create_autocmd("FileType", {
-        group = group,
-        pattern = { "snacks_dashboard", "dashboard", "alpha" },
-        callback = function()
-          vim.opt.showtabline = 0
-        end,
-      })
-
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "FileType" }, {
         group = group,
         callback = function(args)
           local ft = vim.bo[args.buf].filetype

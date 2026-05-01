@@ -43,12 +43,8 @@ return {
         },
       },
     },
-    config = function(_, opts)
-      require("ibl").setup(opts)
-      -- IblScope ссылается на эту highlight-группу — задаём цвет явно,
-      -- чтобы scope-линия (вертикальная палочка текущего блока) была видна
-      --vim.api.nvim_set_hl(0, "IblScope", { fg = "#7aa2f7" })
-    end,
+    -- config не нужен: setup вызовет lazy.nvim сам через `main = "ibl"`.
+    -- IblScope highlight задаётся в colorscheme.lua.
   },
 
   -- ==========================================================================

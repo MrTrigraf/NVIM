@@ -159,6 +159,8 @@ vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
 
+-- Tabline по умолчанию скрыт. Bufferline сам покажет когда нужно.
+--opt.showtabline = 0
 -- ──────────────────────────────────────────────────────────────────────
 -- Единый стиль floating-окон
 -- ──────────────────────────────────────────────────────────────────────
