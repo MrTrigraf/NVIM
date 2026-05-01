@@ -73,7 +73,7 @@ return {
       default_component_configs = {
         indent = {
           indent_size        = 2,
-          padding            = 0,
+          padding            = 1,
           with_markers       = true,
           highlight          = "NeoTreeIndentMarker",
           with_expanders     = true,
@@ -305,7 +305,7 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "neo-tree",
         callback = function()
-          vim.opt_local.cursorline = false
+          vim.opt_local.cursorline   = false
         end,
       })
     end,

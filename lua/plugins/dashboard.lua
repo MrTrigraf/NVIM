@@ -31,15 +31,15 @@ return {
           -- Open File / Open Folder будут добавлены в Блоке 5 после telescope.
           -- Restore Session — заглушка до Блока 14, когда подключим persistence.nvim.
           keys = {
-            { icon = " ", key = "n", desc = "New file", action = ":enew" },
-            { icon = " ", key = "r", desc = "Recent files", action = function() Snacks.dashboard.pick("oldfiles") end },
+            { icon = "", key = "n", desc = "New file", action = ":enew" },
+            { icon = "", key = "r", desc = "Recent files", action = function() Snacks.dashboard.pick("oldfiles") end },
             {
-              icon = " ", key = "s", desc = "Restore session",
+              icon = "", key = "s", desc = "Restore session",
               action = function()
                 vim.notify("persistence.nvim ещё не подключён (Блок 14)", vim.log.levels.WARN)
               end,
             },
-            { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+            { icon = "", key = "q", desc = "Quit", action = ":qa" },
           },
         },
 
