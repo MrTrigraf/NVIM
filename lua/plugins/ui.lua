@@ -178,12 +178,18 @@ return {
       },
     },
     config = function(_, opts)
-      -- Устанавливаем тему lualine в зависимости от background, используя
-      -- встроенные темы kanagawa-paper (ink для dark, canvas для light).
       local theme_name = vim.o.background == "light" and "kanagawa-paper-canvas" or "kanagawa-paper-ink"
       local ok, theme = pcall(require, "lualine.themes." .. theme_name)
       opts.options.theme = ok and theme or "auto"
       require("lualine").setup(opts)
+
+      -- Принудительный redraw статуслайна при смене cwd через project.nvim
+      -- или ручного :cd. Без этого buffers-фильтр не пересчитывает старые
+      -- буферы — буферы из прошлого проекта остаются в полосе до тех пор,
+      -- пока сами не активируются.
+      vim.api.nvim_create_autocmd("DirChanged", {
+        callback = function() vim.cmd.redrawstatus() end,
+      })
     end,
   },
 }
