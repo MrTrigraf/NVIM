@@ -1,9 +1,48 @@
 -- lua/plugins/explorer.lua
 -- Neo-tree — дерево файлов в левом сплите.
 -- В VS Code аналог: Ctrl+Shift+E (панель Explorer).
+-- ────────────────────────────────────────────────────────────────────
+-- Маппер: имя файла + расширение → имя highlight-группы.
+-- Возвращает nil, если для файла нет кастомного цвета — тогда
+-- сработает дефолтный NeoTreeFileName.
+-- Особые имена (Makefile, Dockerfile, go.mod) — приоритетнее расширения.
+-- ────────────────────────────────────────────────────────────────────
+local function name_to_highlight(name, ext)
+  local by_name = {
+    ["Makefile"]            = "NeoTreeFileNameMakefile",
+    ["makefile"]            = "NeoTreeFileNameMakefile",
+    ["GNUmakefile"]         = "NeoTreeFileNameMakefile",
+    ["Dockerfile"]          = "NeoTreeFileNameDocker",
+    ["dockerfile"]          = "NeoTreeFileNameDocker",
+    ["docker-compose.yml"]  = "NeoTreeFileNameDocker",
+    ["docker-compose.yaml"] = "NeoTreeFileNameDocker",
+    ["go.mod"]              = "NeoTreeFileNameDim",
+    ["go.sum"]              = "NeoTreeFileNameDim",
+    [".gitignore"]          = "NeoTreeFileNameDim",
+    [".gitattributes"]      = "NeoTreeFileNameDim",
+    [".env"]                = "NeoTreeFileNameDim",
+    [".editorconfig"]       = "NeoTreeFileNameDim",
+  }
+  if by_name[name] then return by_name[name] end
+
+  local by_ext = {
+    go    = "NeoTreeFileNameGo",
+    lua   = "NeoTreeFileNameLua",
+    yml   = "NeoTreeFileNameYaml",
+    yaml  = "NeoTreeFileNameYaml",
+    json  = "NeoTreeFileNameJson",
+    toml  = "NeoTreeFileNameToml",
+    sh    = "NeoTreeFileNameShell",
+    bash  = "NeoTreeFileNameShell",
+    fish  = "NeoTreeFileNameShell",
+    zsh   = "NeoTreeFileNameShell",
+  }
+  return by_ext[ext]
+end
 
 return {
   { "MunifTanjim/nui.nvim", lazy = true },
+
   {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
@@ -81,7 +120,6 @@ return {
           expander_expanded  = "",
           expander_highlight = "NeoTreeExpander",
         },
-
         -- Иконки + кастомный provider для папок (цвета в стиле kanagawa-paper)
         icon = {
           highlight = "NeoTreeFileIcon",
@@ -214,7 +252,7 @@ return {
         },
         name = {
           trailing_slash        = false,
-          use_git_status_colors = true,
+          use_git_status_colors = false,         
         },
         git_status = {
           symbols = {},
@@ -223,7 +261,7 @@ return {
 
       window = {
         position = "left",
-        width    = 32,
+        width    = 30,
         mappings = {
           ["l"]     = "open",
           ["h"]     = "close_node",
@@ -274,6 +312,22 @@ return {
             ["<"] = "navigate_up",
             ["."] = "set_root",
           },
+        },
+
+        -- КЛЮЧЕВОЙ БЛОК: переопределяем компонент имени файла
+        components = {
+          name = function(config, node, state)
+            -- Стандартный компонент (со всеми настройками из default_component_configs)
+            local component = require("neo-tree.sources.common.components").name(config, node, state)
+            -- Если это обычный файл (не корень), подменяем highlight
+            if node.type == "file" and node:get_depth() > 1 then
+              local custom_hl = name_to_highlight(node.name, node.ext)
+              if custom_hl then
+                component.highlight = custom_hl
+              end
+            end
+            return component
+          end,
         },
       },
     },
@@ -351,6 +405,44 @@ return {
         vim.api.nvim_set_hl(0, group, { fg = color, default = true })
       end
 
+      -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      -- Цвета имён файлов по расширению. Hex'ы взяты из той же палитры
+      -- kanagawa-paper, что и folder_colors. Меняй здесь — это и есть
+      -- место, где живёт цветовая «политика файлов».
+      -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      local file_colors = {
+        ["NeoTreeFileNameGo"]       = "#7FB4CA", -- crystalBlue   (.go)
+        ["NeoTreeFileNameLua"]      = "#8992A7", -- dragonViolet  (.lua)
+        ["NeoTreeFileNameYaml"]     = "#C4B28A", -- dragonYellow  (.yml/.yaml)
+        ["NeoTreeFileNameJson"]     = "#C0A36E", -- boatYellow2   (.json)
+        ["NeoTreeFileNameToml"]     = "#DCA561", -- autumnYellow  (.toml)
+        ["NeoTreeFileNameShell"]    = "#699469", -- dragonGreen   (.sh/.bash/.fish/.zsh)
+        ["NeoTreeFileNameDocker"]   = "#658594", -- dragonBlue    (Dockerfile, docker-compose)
+        ["NeoTreeFileNameMakefile"] = "#B6927B", -- dragonOrange  (Makefile)
+        ["NeoTreeFileNameDim"]      = "#727169", -- fujiGray      (go.mod, .gitignore, .env)
+      }
+
+      for group, color in pairs(file_colors) do
+        vim.api.nvim_set_hl(0, group, { fg = color, default = true })
+      end
+
+      -- Цвета иконок git-статуса (свои группы, чтобы тема не перебивала)
+      local git_status_colors = {
+        GitStatusAdded     = "#699469", -- dragonGreen
+        GitStatusModified  = "#DCA561", -- autumnYellow
+        GitStatusDeleted   = "#C4746E", -- dragonRed
+        GitStatusRenamed   = "#7FB4CA", -- springBlue
+        GitStatusUntracked = "#B6927B", -- dragonOrange
+        GitStatusIgnored   = "#727169", -- fujiGray
+        GitStatusUnstaged  = "#C4746E", -- dragonRed
+        GitStatusStaged    = "#699469", -- dragonGreen
+        GitStatusConflict  = "#C4746E", -- dragonRed
+      }
+
+      for group, color in pairs(git_status_colors) do
+        vim.api.nvim_set_hl(0, group, { fg = color, default = true })
+      end
+
       require("neo-tree").setup(opts)
 
       vim.api.nvim_create_autocmd("TermClose", {
@@ -366,6 +458,17 @@ return {
         pattern = "neo-tree",
         callback = function()
           vim.opt_local.cursorline   = false
+        end,
+      })
+      
+      vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
+        pattern = "neo-tree*",
+        callback = function(args)
+          local buf = args.buf or vim.api.nvim_get_current_buf()
+          if vim.bo[buf].filetype == "neo-tree" or vim.bo[buf].filetype == "neo-tree-popup" then
+            vim.wo.statuscolumn = ""
+            vim.wo.foldcolumn = "0"
+          end
         end,
       })
     end,
