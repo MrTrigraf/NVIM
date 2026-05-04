@@ -36,8 +36,6 @@ return {
       { "<leader>fK", "<cmd>Telescope keymaps<cr>",               desc = "Keymaps" },
       -- Файлы конфига nvim (быстрый доступ из любого проекта)
       { "<leader>fc", "<cmd>Telescope find_files cwd=~/.config/nvim<cr>", desc = "Config files" },
-      -- Список проектов (project.nvim) — VS Code-аналог "Recent Workspaces"
-      { "<leader>fp", "<cmd>Telescope projects<cr>",              desc = "Projects" },
       -- Символы LSP — заработают после Блока 6
       { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>",  desc = "Symbols (file)" },
       { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Symbols (workspace)" },
@@ -131,8 +129,6 @@ return {
       telescope.setup(opts)
       -- pcall чтобы не упало если fzf-native не скомпилировался
       pcall(telescope.load_extension, "fzf")
-      -- project.nvim расширение для telescope (грузим если плагин загружен)
-      pcall(telescope.load_extension, "projects")
     end,
   },
 }
