@@ -59,13 +59,6 @@ return {
         border = "single",  -- или "rounded" для стиля темы
         padding = {1, 2},
         title_pos = "center",
-    },
-
-      win = {
-        no_overlap = true,  -- не перекрывает курсор
-        border = "single",  -- или "rounded" для стиля темы
-        padding = {1, 2},
-        title_pos = "center",
       },
 
       icons = {

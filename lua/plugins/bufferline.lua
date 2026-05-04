@@ -6,17 +6,17 @@
 return {
   {
     "akinsho/bufferline.nvim",
-    enabled = false,
+    enabled = true,
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        mode                    = "buffers",
-        diagnostics             = "nvim_lsp",
+        mode = "buffers",
+        diagnostics = "nvim_lsp",
         show_buffer_close_icons = false,
-        show_close_icon         = false,
-        separator_style         = "thin",
-        always_show_bufferline  = false,
+        show_close_icon = false,
+        separator_style = "thin",
+        always_show_bufferline = true,
         offsets = {
           {
             filetype   = "neo-tree",
@@ -28,6 +28,7 @@ return {
         },
       },
     },
+    
     keys = {
       { "<leader>bp", "<cmd>BufferLineTogglePin<cr>",            desc = "Pin buffer" },
       { "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<cr>", desc = "Close non-pinned" },
@@ -39,8 +40,25 @@ return {
       { "[B",         "<cmd>BufferLineMovePrev<cr>",             desc = "Move buffer left" },
       { "]B",         "<cmd>BufferLineMoveNext<cr>",             desc = "Move buffer right" },
     },
+
     config = function(_, opts)
       require("bufferline").setup(opts)
+
+      -- ─────────────────────────────────────────────────────────────
+      -- Принудительный пересчёт offset (под neo-tree) при изменении
+      -- буферов или layout окон. Без этого offset рисуется один раз
+      -- при первом старте и не обновляется при открытии/закрытии
+      -- neo-tree, из-за чего табы налезают на дерево.
+      -- vim.schedule + pcall — пересчёт идёт асинхронно и не падает,
+      -- если nvim_bufferline ещё не определён в момент вызова.
+      -- ─────────────────────────────────────────────────────────────
+      vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "WinEnter", "WinClosed" }, {
+        callback = function()
+          vim.schedule(function()
+            pcall(nvim_bufferline)
+          end)
+        end,
+      })
 
       -- Скрываем tabline на дашборде, чтобы стартовый экран не дрался
       -- с верхней полосой буферов
