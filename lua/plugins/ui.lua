@@ -54,6 +54,20 @@ return {
         { "<leader>x", group = "diagnostics" },
       },
 
+      win = {
+        no_overlap = true,  -- не перекрывает курсор
+        border = "single",  -- или "rounded" для стиля темы
+        padding = {1, 2},
+        title_pos = "center",
+    },
+
+      win = {
+        no_overlap = true,  -- не перекрывает курсор
+        border = "single",  -- или "rounded" для стиля темы
+        padding = {1, 2},
+        title_pos = "center",
+      },
+
       icons = {
         rules = false,
       },
@@ -69,7 +83,7 @@ return {
   },
 
   -- Плагин 4: lualine
-  {
+    {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -86,27 +100,54 @@ return {
         },
       },
       sections = {
-        lualine_a = { "mode" },
+        lualine_a = {
+          {
+            "mode",
+            fmt = function(str)
+              local abbreviations = {
+                ["NORMAL"]       = " NO",
+                ["INSERT"]       = " IN",
+                ["VISUAL"]       = "󰉂 VI",
+                ["V-LINE"]       = "󰉁 VL",
+                ["V-BLOCK"]      = "⬒ VB",
+                ["V-REPLACE"]    = "󱓳 VR",
+                ["REPLACE"]      = "󱓳 RE",
+                ["COMMAND"]      = " CO",
+                ["SHELL"]        = " SH",
+                ["SELECT"]       = "󰉃 SE",
+                ["S-LINE"]       = "󰉂 SL",
+                ["S-BLOCK"]      = "SB",
+                ["TERMINAL"]     = " TE",
+                ["OP-PENDING"]   = "󰅂 OP",
+              }
+              -- Если режим есть в таблице — вернуть сокращение, иначе первые две буквы заглавными
+              return abbreviations[str] or str:sub(1, 2):upper()
+            end,
+          },
+        },
         lualine_b = {
-          { "branch", icon = "" },
-          { "diff", symbols = { added = " ", modified = " ", removed = " " } },
+          { "branch", icon = "" },
         },
         lualine_c = {
           {
-            "diagnostics",
-            symbols = { error = " ", warn = " ", info = " ", hint = " " },
-          },
-          {
             "filename",
-            path = 1,
+            path = 0,
             symbols = { modified = "●", readonly = "", unnamed = "[No Name]" },
+            color = function()
+            if vim.bo.modified then
+              -- Получаем реальный цвет из текущей темы (например, DiagnosticError)
+              local hl = vim.api.nvim_get_hl(0, { name = "DiagnosticError", link = false })
+              if hl and hl.fg then
+                return { fg = string.format("#%06x", hl.fg) }
+              end
+              -- fallback, если группа не найдена
+              return { fg = "#D27E99" }
+            end
+            return nil
+          end,
           },
         },
-        lualine_x = {
-          "encoding",
-          { "fileformat", symbols = { unix = "", dos = "", mac = "" } },
-          "filetype",
-        },
+        lualine_x = { },
         lualine_y = { "progress" },
         lualine_z = { "location" },
       },

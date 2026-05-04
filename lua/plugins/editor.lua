@@ -70,16 +70,8 @@ return {
         before        = "",                  -- пустая плашка перед tag
         keyword       = "fg",                -- цвет текста tag, без плашки
         after         = "fg",                -- текст после tag тоже окрашен
-        pattern       = [[.*<(KEYWORDS)\s*:]],
+        pattern       = [[.*(KEYWORDS)\s*:]],
         comments_only = true,                -- подсвечивать только в комментариях
-      },
-      colors = {
-        error   = { "DiagnosticError", "ErrorMsg",   "#DC2626" },
-        warning = { "DiagnosticWarn",  "WarningMsg", "#FBBF24" },
-        info    = { "DiagnosticInfo",                "#2563EB" },
-        hint    = { "DiagnosticHint",                "#10B981" },
-        default = { "Identifier",                    "#7C3AED" },
-        test    = { "Identifier",                    "#FF00FF" },
       },
     },
     keys = {

@@ -6,7 +6,7 @@
 
 return {
   {
-    "folke/snacks.nvim",
+    "folke/snacks.nvim", 
     priority = 1000,
     lazy = false,
     opts = {
@@ -84,6 +84,28 @@ return {
     },
     config = function(_, opts)
       require("snacks").setup(opts)
+
+      local function cursor_blend(value)
+        local hl = vim.api.nvim_get_hl(0, { name = "Cursor", create = true })
+        hl.blend = value
+        vim.api.nvim_set_hl(0, "Cursor", hl)
+        vim.cmd("set guicursor+=a:Cursor/lCursor")
+      end
+
+    -- Скрыть при открытии дашборда
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "SnacksDashboardOpened",
+        callback = function() cursor_blend(100) end,  -- 100 = полностью прозрачный
+      })
+
+    -- Вернуть при уходе
+      vim.api.nvim_create_autocmd("BufLeave", {
+        callback = function()
+          if vim.bo.filetype == "snacks_dashboard" then
+            cursor_blend(0)
+          end
+        end,
+      })
     end,
   },
 }
