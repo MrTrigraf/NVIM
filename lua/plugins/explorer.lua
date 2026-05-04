@@ -298,7 +298,7 @@ return {
 
       filesystem = {
         bind_to_cwd            = false,
-        follow_current_file    = { enabled = true, leave_dirs_open = false },
+        follow_current_file    = { enabled = false },
         use_libuv_file_watcher = true,
         filtered_items = {
           visible         = false,
@@ -469,6 +469,40 @@ return {
             vim.wo.statuscolumn = ""
             vim.wo.foldcolumn = "0"
           end
+        end,
+      })
+      -- ─────────────────────────────────────────────────────────────────
+      -- Умный follow_current_file: реагируем на смену буфера, но только
+      -- для файлов ВНУТРИ текущего cwd. Файлы из других проектов
+      -- (например, :e ~/.bashrc) просто игнорируем — это убирает
+      -- ошибку "Neo-tree ERROR debounce neo-tree-follow" из встроенного
+      -- follow_current_file, который ломается при попытке выделить
+      -- файл вне cwd.
+      -- ─────────────────────────────────────────────────────────────────
+      vim.api.nvim_create_autocmd("BufEnter", {
+        callback = function(args)
+          -- Не трогать спец-буферы (neo-tree, terminal, help, dashboard).
+          if vim.bo[args.buf].buftype ~= "" then return end
+          if not vim.bo[args.buf].buflisted then return end
+
+          local bufname = vim.api.nvim_buf_get_name(args.buf)
+          if bufname == "" then return end
+
+          local cwd = vim.fn.getcwd()
+          if not cwd:match("/$") then cwd = cwd .. "/" end
+
+          -- Файл вне cwd — не следуем за ним.
+          if not vim.startswith(bufname, cwd) then return end
+
+          -- pcall — страховка от внутренних race conditions neo-tree.
+          pcall(function()
+            require("neo-tree.command").execute({
+              source           = "filesystem",
+              action           = "show",
+              reveal_file      = bufname,
+              reveal_force_cwd = false,
+            })
+          end)
         end,
       })
     end,

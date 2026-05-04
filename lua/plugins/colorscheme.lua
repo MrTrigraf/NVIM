@@ -131,21 +131,9 @@ return {
           DashboardFooterCount   = { fg = palette.crystalBlue, bold = true },
           DashboardFooterTime    = { fg = palette.waveAqua2 },
 
-          -- Bufferline (на будущее)
-          BufferLineFill                = { bg = theme.ui.bg_dim },
-          BufferLineBackground          = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
-          BufferLineBufferVisible       = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
-          BufferLineBufferSelected      = { bg = theme.ui.bg_p1, fg = theme.ui.fg, bold = true },
-          BufferLineModified            = { bg = theme.ui.bg_dim, fg = theme.diag.warning },
-          BufferLineModifiedVisible     = { bg = theme.ui.bg_dim, fg = theme.diag.warning },
-          BufferLineModifiedSelected    = { bg = theme.ui.bg_p1, fg = theme.diag.warning },
-          BufferLineSeparator           = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
-          BufferLineSeparatorVisible    = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
-          BufferLineSeparatorSelected   = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
-          BufferLineIndicatorSelected   = { bg = theme.ui.bg_p1, fg = theme.syn.fun },
-          BufferLineCloseButton         = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
-          BufferLineCloseButtonVisible  = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
-          BufferLineCloseButtonSelected = { bg = theme.ui.bg_p1, fg = theme.ui.fg },
+          -- ── lualine "buffers" компонент ────────────────────────────
+          LualineBufferActive   = { bg = "none", fg = palette.crystalBlue, bold = true },
+          LualineBufferInactive = { bg = "none", fg = theme.ui.fg_dim },
         }
       end,
     },

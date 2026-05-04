@@ -123,21 +123,53 @@ return {
         },
         lualine_c = {
           {
-            "filename",
-            path = 0,
-            symbols = { modified = "●", readonly = "", unnamed = "[No Name]" },
-            color = function()
-            if vim.bo.modified then
-              -- Получаем реальный цвет из текущей темы (например, DiagnosticError)
-              local hl = vim.api.nvim_get_hl(0, { name = "DiagnosticError", link = false })
-              if hl and hl.fg then
-                return { fg = string.format("#%06x", hl.fg) }
-              end
-              -- fallback, если группа не найдена
-              return { fg = "#D27E99" }
-            end
-            return nil
-          end,
+            "buffers",
+            mode                    = 0,
+            show_filename_only      = true,
+            hide_filename_extension = false,
+            show_modified_status    = true,
+
+            -- ── Фильтр: только буферы текущего проекта ─────────────────
+            -- Запоминаем root активного буфера (папку с .git/go.mod) при
+            -- первом вызове и фильтруем все буферы по нему. Если открыл
+            -- файл из другого проекта — он не попадёт в полосу.
+            -- Фильтр: только буферы, чей путь начинается с текущей cwd.
+            -- cwd Neovim — стабильнее vim.fs.root, потому что не зависит
+            -- от наличия .git в домашней папке. + проверки buftype/buflisted
+            -- отсекают служебные буферы (neo-tree, terminal, mini.icons).
+            filter = function(bufnr)
+              if not vim.bo[bufnr].buflisted then return false end
+              if vim.bo[bufnr].buftype ~= "" then return false end
+
+              local bufname = vim.api.nvim_buf_get_name(bufnr)
+              if bufname == "" then return false end
+
+              local cwd = vim.fn.getcwd()
+              if not cwd:match("/$") then cwd = cwd .. "/" end
+
+              return vim.startswith(bufname, cwd)
+            end,
+            -- ── Спец-имена для всё-таки попавших buftype-буферов ─────
+            filetype_names = {
+              TelescopePrompt  = "Telescope",
+              snacks_dashboard = "Dashboard",
+              lazy             = "Lazy",
+              mason            = "Mason",
+            },
+
+            max_length = function() return math.floor(vim.o.columns * 2 / 3) end,
+
+            symbols = {
+              modified       = " ●",
+              alternate_file = "",
+              directory      = "",
+            },
+
+            -- ── Цвета: прозрачный фон, через named highlight-группы ──
+            buffers_color = {
+              active   = "LualineBufferActive",
+              inactive = "LualineBufferInactive",
+            },
           },
         },
         lualine_x = { },

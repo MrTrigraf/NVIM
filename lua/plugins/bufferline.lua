@@ -1,80 +1,47 @@
 -- ============================================================================
 -- lua/plugins/bufferline.lua
--- Верхняя полоса с табами по числу открытых буферов.
+-- Плагин bufferline.nvim ОТКЛЮЧЁН.
+-- Список буферов отображается через компонент "buffers" в lualine (см. ui.lua),
+-- с фильтром по текущей рабочей директории — показываются только буферы
+-- открытого проекта. Этот файл хранит keys-маппинги через нативные Vim-команды
+-- и Snacks.bufdelete, чтобы привычные <leader>b* и ]b/[b продолжали работать.
 -- ============================================================================
 
 return {
+  -- Сам плагин bufferline отключён, но запись оставлена на случай возврата.
   {
     "akinsho/bufferline.nvim",
-    enabled = true,
-    event = "VeryLazy",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    opts = {
-      options = {
-        mode = "buffers",
-        diagnostics = "nvim_lsp",
-        show_buffer_close_icons = false,
-        show_close_icon = false,
-        separator_style = "thin",
-        always_show_bufferline = true,
-        offsets = {
-          {
-            filetype   = "neo-tree",
-            text       = "",
-            highlight  = "Directory",
-            text_align = "left",
-            separator  = true,
-          },
-        },
-      },
-    },
-    
+    enabled = false,
+  },
+
+  -- Виртуальная "пустышка" (no-op spec), чтобы держать <leader>b* биндинги
+  -- независимо от bufferline. lazy.nvim требует чтобы плагин-плейсхолдер
+  -- ссылался на реальный репо, поэтому пользуемся plenary (он у нас уже
+  -- стоит как зависимость многих других плагинов — никакой нагрузки сверху).
+  {
+    "nvim-lua/plenary.nvim",
     keys = {
-      { "<leader>bp", "<cmd>BufferLineTogglePin<cr>",            desc = "Pin buffer" },
-      { "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<cr>", desc = "Close non-pinned" },
-      { "<leader>bo", "<cmd>BufferLineCloseOthers<cr>",          desc = "Close other buffers" },
-      { "<leader>br", "<cmd>BufferLineCloseRight<cr>",           desc = "Close buffers to the right" },
-      { "<leader>bl", "<cmd>BufferLineCloseLeft<cr>",            desc = "Close buffers to the left" },
-      { "[b",         "<cmd>BufferLineCyclePrev<cr>",            desc = "Prev buffer (bufferline)" },
-      { "]b",         "<cmd>BufferLineCycleNext<cr>",            desc = "Next buffer (bufferline)" },
-      { "[B",         "<cmd>BufferLineMovePrev<cr>",             desc = "Move buffer left" },
-      { "]B",         "<cmd>BufferLineMoveNext<cr>",             desc = "Move buffer right" },
+      -- ── Переключение между буферами ──────────────────────────────────
+      { "]b", "<cmd>bnext<cr>",     desc = "Next buffer" },
+      { "[b", "<cmd>bprevious<cr>", desc = "Prev buffer" },
+
+      -- ── Закрытие буферов ─────────────────────────────────────────────
+      -- Snacks.bufdelete умнее чем :bd — при закрытии последнего буфера
+      -- НЕ закрывает окно (как делает :bd). Открывается scratch-буфер.
+      {
+        "<leader>bd",
+        function() require("snacks").bufdelete() end,
+        desc = "Delete buffer",
+      },
+      {
+        "<leader>bo",
+        function() require("snacks").bufdelete.other() end,
+        desc = "Delete other buffers",
+      },
+
+      -- ── Перейти к alternate-буферу (тот, в котором был перед текущим)
+      -- Стандартная Vim-команда, аналог Ctrl+Tab в VS Code.
+      { "<leader>bb", "<cmd>buffer #<cr>", desc = "Switch to other buffer" },
     },
-
-    config = function(_, opts)
-      require("bufferline").setup(opts)
-
-      -- ─────────────────────────────────────────────────────────────
-      -- Принудительный пересчёт offset (под neo-tree) при изменении
-      -- буферов или layout окон. Без этого offset рисуется один раз
-      -- при первом старте и не обновляется при открытии/закрытии
-      -- neo-tree, из-за чего табы налезают на дерево.
-      -- vim.schedule + pcall — пересчёт идёт асинхронно и не падает,
-      -- если nvim_bufferline ещё не определён в момент вызова.
-      -- ─────────────────────────────────────────────────────────────
-      vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "WinEnter", "WinClosed" }, {
-        callback = function()
-          vim.schedule(function()
-            pcall(nvim_bufferline)
-          end)
-        end,
-      })
-
-      -- Скрываем tabline на дашборде, чтобы стартовый экран не дрался
-      -- с верхней полосой буферов
-      local group = vim.api.nvim_create_augroup("bufferline_hide_on_dashboard", { clear = true })
-
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "FileType" }, {
-        group = group,
-        callback = function(args)
-          local ft = vim.bo[args.buf].filetype
-          if ft == "snacks_dashboard" or ft == "dashboard" or ft == "alpha" then
-            vim.opt.showtabline = 0
-          else
-            vim.opt.showtabline = 2
-          end
-        end,
-      })
-    end,
   },
 }
