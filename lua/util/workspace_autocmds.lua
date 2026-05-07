@@ -16,7 +16,7 @@ local group = vim.api.nvim_create_augroup("UserWorkspaces", { clear = true })
 -- ---------------------------------------------------------------------------
 vim.api.nvim_create_autocmd("VimEnter", {
   group = group,
-  desc = "Auto-register current cwd in workspaces.nvim",
+  desc = "Auto-register current cwd in workspaces.nvim + prune dead",
   callback = function()
     vim.schedule(function()
       -- pcall на случай, если плагин всё-таки не загрузился (сломанный spec).
@@ -29,18 +29,26 @@ vim.api.nvim_create_autocmd("VimEnter", {
       -- Проверка: есть ли уже запись с таким путём.
       -- Плагин хранит пути с хвостовым слэшем — нормализуем для сравнения.
       local cwd_normalized = cwd:gsub("/$", "") .. "/"
+      local found = false
       for _, entry in ipairs(ws.get() or {}) do
         if entry.path == cwd_normalized then
-          -- Запись уже есть. Просто обновляем MRU через повторный add() —
-          -- плагин не создаст дубликата, но обновит last_opened.
-          ws.add(cwd, entry.name)
-          return
+          -- Запись уже есть. НЕ вызываем ws.add() — плагин выдаст warn,
+          -- и при этом MRU всё равно не обновит (он умеет это только через
+          -- open()). MRU обновится позже, когда пользователь явно выберет
+          -- проект через <leader>fp или дашборд.
+          found = true
+          break
         end
       end
 
-      -- Записи нет — генерируем уникальное имя и добавляем.
-      local name = helpers.gen_unique_name(cwd)
-      ws.add(cwd, name)
+      if not found then
+        -- Записи нет — генерируем уникальное имя и добавляем.
+        local name = helpers.gen_unique_name(cwd)
+        ws.add(cwd, name)
+      end
+
+      -- чистка мёртвых записей.
+      helpers.prune_dead()
     end)
   end,
 })

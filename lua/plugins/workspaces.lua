@@ -32,7 +32,7 @@ return {
 
       -- :WorkspacesList и др. команды — все опции по дефолту.
       -- notify_info: показывать тосты "Workspace foo added/removed/opened".
-      notify_info = true,
+      notify_info = false,
     },
     config = function(_, opts)
       require("workspaces").setup(opts)
