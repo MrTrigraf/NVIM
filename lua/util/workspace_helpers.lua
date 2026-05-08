@@ -203,4 +203,40 @@ function M.switch(path)
   return { closed_buffers = closed, registered = registered }
 end
 
+-- ---------------------------------------------------------------------------
+-- enforce_limit(n) → number
+-- Если в workspaces.nvim > n записей, удаляет самые старые по MRU (записи
+-- с last_opened="" уходят первыми). Возвращает количество удалённых.
+-- Вызывается из VimEnter autocmd после prune_dead.
+-- ---------------------------------------------------------------------------
+function M.enforce_limit(n)
+  local plugin = ws()
+  if not plugin then return 0 end
+  n = n or 20
+
+  local list = plugin.get() or {}
+  if #list <= n then return 0 end
+
+  -- Делаем копию для сортировки (не мутируем то, что вернул плагин).
+  local sorted = vim.deepcopy(list)
+  table.sort(sorted, function(a, b)
+    -- Записи без last_opened = пустая строка → их в конец (самые "старые").
+    local ao = a.last_opened or ""
+    local bo = b.last_opened or ""
+    if ao == "" and bo ~= "" then return false end
+    if bo == "" and ao ~= "" then return true end
+    -- MRU: позже открытые — наверху.
+    return ao > bo
+  end)
+
+  -- Кандидаты на удаление — всё что после n-го элемента.
+  local removed = 0
+  for i = n + 1, #sorted do
+    plugin.remove(sorted[i].name)
+    removed = removed + 1
+  end
+
+  return removed
+end
+
 return M

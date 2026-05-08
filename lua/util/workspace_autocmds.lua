@@ -49,6 +49,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
       -- чистка мёртвых записей.
       helpers.prune_dead()
+      helpers.enforce_limit(20)
     end)
   end,
 })
