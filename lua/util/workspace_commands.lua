@@ -62,3 +62,15 @@ vim.api.nvim_create_user_command("Unpin", unpin_select, { desc = "Unpin a pinned
 -- ── Keymap'ы ──────────────────────────────────────────────────────────
 vim.keymap.set("n", "<leader>fa", pin_cwd,      { desc = "Pin current cwd" })
 vim.keymap.set("n", "<leader>fu", unpin_select, { desc = "Unpin a pinned project" })
+
+-- <leader>fp — пикер истории workspaces (telescope).
+-- require живёт ВНУТРИ функции-обёртки: workspace_pickers тянет telescope,
+-- а тот ленивый — на старте nvim его ещё нет на runtimepath.
+vim.keymap.set("n", "<leader>fp", function()
+  require("util.workspace_pickers").pick_workspaces()
+end, { desc = "Workspaces history (telescope)" })
+
+-- <leader>fP — пикер закреплённых проектов (telescope), <C-d> для unpin.
+vim.keymap.set("n", "<leader>fP", function()
+  require("util.workspace_pickers").pick_pinned()
+end, { desc = "Pinned projects (telescope)" }) 
