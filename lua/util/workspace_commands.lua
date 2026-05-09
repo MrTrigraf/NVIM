@@ -73,4 +73,9 @@ end, { desc = "Workspaces history (telescope)" })
 -- <leader>fP — пикер закреплённых проектов (telescope), <C-d> для unpin.
 vim.keymap.set("n", "<leader>fP", function()
   require("util.workspace_pickers").pick_pinned()
-end, { desc = "Pinned projects (telescope)" }) 
+end, { desc = "Pinned projects (telescope)" })
+
+-- <leader>fA — закрепить проект из истории workspaces (telescope).
+vim.keymap.set("n", "<leader>fA", function()
+  require("util.workspace_pickers").pick_for_pin()
+end, { desc = "Pin a workspace from history" })
