@@ -2,13 +2,15 @@
 -- Утилиты для работы с workspaces.nvim:
 --   * автогенерация имён с дисамбигуацией конфликтов
 --   * автоочистка мёртвых записей (несуществующих папок)
---   * переключение проектов с политикой буферов 3
---     (закрываем буферы вне нового cwd, оставляем внутри)
+--   * закрытие буферов вне заданного пути (политика буферов 3)
+--   * активное переключение проекта (только :cd; побочные эффекты — в
+--     autocmd DirChanged в workspace_autocmds.lua)
+--   * enforce_limit для удержания истории workspaces в пределах N записей
 local M = {}
 
 -- ---------------------------------------------------------------------------
 -- Helper: безопасный вызов workspaces API.
--- Если плагин ещё не загружен (VeryLazy), возвращаем {} вместо ошибки.
+-- Если плагин ещё не загружен (VeryLazy), возвращаем nil вместо ошибки.
 -- ---------------------------------------------------------------------------
 local function ws()
   local ok, mod = pcall(require, "workspaces")
@@ -138,39 +140,25 @@ function M.prune_dead()
 end
 
 -- ---------------------------------------------------------------------------
--- switch(path) → { closed_buffers = N, registered = bool }
--- Переключает на проект:
---   1. Закрывает буферы вне нового cwd (политика 3).
---   2. Меняет cwd через :cd.
---   3. Гарантирует регистрацию пути в workspaces.nvim.
--- НЕ вызывает hooks плагина — это сделают наши autocmd-обработчики DirChanged
+-- close_buffers_outside(path) → number
+-- Закрывает loaded+listed буферы (обычные файлы), чьи имена не начинаются
+-- с переданного пути. Служебные буферы (terminal, neo-tree, telescope,
+-- lazy popup) пропускаются — у них либо buflisted=false, либо buftype≠"".
+-- Несохранённые буферы НЕ закрываются (force=false → pcall вернёт ошибку,
+-- которую мы проглатываем). Возвращает количество фактически закрытых.
 -- ---------------------------------------------------------------------------
-function M.switch(path)
-  -- Нормализация и абсолютизация.
+function M.close_buffers_outside(path)
   path = vim.fn.fnamemodify(path, ":p"):gsub("/$", "")
-
-  if vim.fn.isdirectory(path) == 0 then
-    vim.notify(
-      string.format("workspace_helpers: путь не существует: %s", path),
-      vim.log.levels.ERROR
-    )
-    return { closed_buffers = 0, registered = false }
-  end
-
-  -- ── Шаг 1: закрытие буферов вне нового cwd ──────────────────────────
   local target_prefix = path .. "/"
   local closed = 0
 
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    -- Только loaded + listed буферы. Служебные (terminal, neo-tree, lazy
-    -- popup) сюда не попадают — у них либо buflisted=false, либо buftype≠"".
     if vim.api.nvim_buf_is_loaded(bufnr)
         and vim.bo[bufnr].buflisted
         and vim.bo[bufnr].buftype == ""
     then
       local bufname = vim.api.nvim_buf_get_name(bufnr)
       if bufname ~= "" and not vim.startswith(bufname, target_prefix) then
-        -- force = false: НЕ закрывать буферы с несохранёнными изменениями.
         local ok = pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
         if ok then
           closed = closed + 1
@@ -179,28 +167,35 @@ function M.switch(path)
     end
   end
 
-  -- ── Шаг 2: смена cwd ────────────────────────────────────────────────
-  vim.cmd("cd " .. vim.fn.fnameescape(path))
+  return closed
+end
 
-  -- ── Шаг 3: регистрация в плагине, если пути ещё нет ─────────────────
-  local registered = false
-  local plugin = ws()
-  if plugin then
-    local already = false
-    for _, entry in ipairs(plugin.get() or {}) do
-      if entry.path == path then
-        already = true
-        break
-      end
-    end
+-- ---------------------------------------------------------------------------
+-- switch(path) → bool
+-- Активное переключение в проект. Делает ТОЛЬКО :cd.
+-- Все побочные эффекты — закрытие буферов вне cwd, обновление MRU в
+-- workspaces.nvim, рефреш neo-tree — выполняются реактивно из autocmd
+-- DirChanged в workspace_autocmds.lua.
+--
+-- Такая разделённая архитектура даёт одинаковую реакцию на любой триггер
+-- смены cwd: на switch() из пикера, на цифру с дашборда, на ручной :cd,
+-- на :cd из автоматизации (плагины и т.п.).
+--
+-- Возвращает true при успехе, false если путь не существует.
+-- ---------------------------------------------------------------------------
+function M.switch(path)
+  path = vim.fn.fnamemodify(path, ":p"):gsub("/$", "")
 
-    if not already then
-      plugin.add(path, M.gen_unique_name(path))
-      registered = true
-    end
+  if vim.fn.isdirectory(path) == 0 then
+    vim.notify(
+      string.format("workspace_helpers.switch: путь не существует: %s", path),
+      vim.log.levels.ERROR
+    )
+    return false
   end
 
-  return { closed_buffers = closed, registered = registered }
+  vim.cmd("cd " .. vim.fn.fnameescape(path))
+  return true
 end
 
 -- ---------------------------------------------------------------------------
