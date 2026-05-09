@@ -183,4 +183,108 @@ function M.pick_pinned()
   }):find()
 end
 
+-- ---------------------------------------------------------------------------
+-- Пикер 3: <leader>fA — Pin from history
+-- Показывает workspaces из БД №1, ИСКЛЮЧАЯ уже закреплённые в БД №2.
+-- Enter — закрепить выбранный проект (без cd).
+-- ---------------------------------------------------------------------------
+function M.pick_for_pin()
+  -- Все telescope-модули — внутри функции (см. комментарий в шапке файла).
+  local pickers       = require("telescope.pickers")
+  local finders       = require("telescope.finders")
+  local conf          = require("telescope.config").values
+  local actions       = require("telescope.actions")
+  local action_state  = require("telescope.actions.state")
+  local entry_display = require("telescope.pickers.entry_display")
+
+  local ok, ws = pcall(require, "workspaces")
+  if not ok then
+    vim.notify("workspaces.nvim не загружен", vim.log.levels.ERROR)
+    return
+  end
+
+  local pinned = require("util.pinned_projects")
+
+  -- Собираем set уже закреплённых путей. Нормализация — чтобы сравнение
+  -- было устойчивым: workspaces.nvim хранит пути с хвостовым слэшем
+  -- ("/home/x/foo/"), pinned — без ("/home/x/foo"). Приводим к виду
+  -- без слэша.
+  local pinned_set = {}
+  for _, p in ipairs(pinned.list()) do
+    pinned_set[(p.path):gsub("/$", "")] = true
+  end
+
+  -- Фильтруем workspaces: оставляем только незакреплённые.
+  local all = ws.get() or {}
+  local results = {}
+  for _, w in ipairs(all) do
+    if not pinned_set[(w.path):gsub("/$", "")] then
+      table.insert(results, w)
+    end
+  end
+
+  if #results == 0 then
+    if #all == 0 then
+      vim.notify("История workspaces пуста", vim.log.levels.INFO)
+    else
+      vim.notify("Все workspaces из истории уже закреплены", vim.log.levels.INFO)
+    end
+    return
+  end
+
+  local displayer = entry_display.create({
+    separator = "  ",
+    items = {
+      { width = 24 },
+      { remaining = true },
+    },
+  })
+
+  pickers.new({}, {
+    prompt_title = "Pin from history",
+    finder = finders.new_table({
+      results = results,
+      entry_maker = function(w)
+        return {
+          value   = w.path,
+          ordinal = w.name .. " " .. w.path,
+          name    = w.name,
+          path    = w.path,
+          display = function(e)
+            return displayer({
+              { e.name,              "TelescopeResultsIdentifier" },
+              { pretty_path(e.path), "TelescopeResultsComment" },
+            })
+          end,
+        }
+      end,
+    }),
+    sorter = conf.generic_sorter({}),
+    attach_mappings = function(prompt_bufnr, _map)
+      -- <CR>: закрепить выбранный проект. Без cd, без переключения.
+      actions.select_default:replace(function()
+        local entry = action_state.get_selected_entry()
+        actions.close(prompt_bufnr)
+        if not entry then return end
+
+        -- pinned.add() сам нормализует путь, проверяет существование папки,
+        -- генерирует уникальное имя. Возвращает entry или nil (уже закреплён
+        -- — но мы такие отфильтровали; либо папка пропала с диска).
+        local added = pinned.add(entry.path)
+        if added then
+          vim.notify(
+            "Закреплён: " .. added.name .. "  →  " .. entry.path,
+            vim.log.levels.INFO
+          )
+          if vim.bo.filetype == "snacks_dashboard" then
+            vim.schedule(function() Snacks.dashboard() end)
+          end
+        end
+      end)
+
+      return true
+    end,
+  }):find()
+end
+
 return M

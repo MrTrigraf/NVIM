@@ -46,6 +46,7 @@ return {
                 vim.notify("persistence.nvim ещё не подключён (Блок 14)", vim.log.levels.WARN)
               end,
             },
+            { icon = "", key = "p", desc = "Projects", action = "<leader>fP" },
             { icon = "", key = "q", desc = "Quit", action = ":qa" },
           },
         },
