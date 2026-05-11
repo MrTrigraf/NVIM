@@ -173,11 +173,10 @@ return {
           for i = 1, math.min(9, #pinned) do
             local entry = pinned[i]
             vim.keymap.set("n", tostring(i), function()
+              local dash_buf = vim.api.nvim_get_current_buf()
+              vim.cmd("bdelete " .. dash_buf)
               vim.cmd("cd " .. vim.fn.fnameescape(entry.path))
               vim.notify("Открыт проект: " .. entry.name, vim.log.levels.INFO)
-              if vim.bo.filetype == "snacks_dashboard" then
-                vim.cmd("enew")
-              end
             end, {
               buffer = event.buf,
               desc = "Open pinned project " .. i,
