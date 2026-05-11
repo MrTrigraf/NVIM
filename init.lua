@@ -18,6 +18,12 @@ require("config.options")
 -- Глобальные пользовательские биндинги (не плагинные).
 require("config.keymaps")
 
+-- Настройка отображения диагностик (vim.diagnostic.config) +
+-- глобальные биндинги ]d / [d / <leader>ld. Подключается ДО плагинов,
+-- чтобы первый же LSP-сервер при старте увидел уже сконфигурированный
+-- vim.diagnostic.
+require("config.diagnostics")
+
 -- Автокоманды — реакции на события Neovim (yank highlight, восстановление
 -- позиции курсора, отступы по filetype и т.п.).
 require("config.autocmds")

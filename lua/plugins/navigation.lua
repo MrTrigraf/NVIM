@@ -3,35 +3,73 @@
 
 return {
   -- ============================================================================
-  -- 0. STATUSCOL — правильная fold‑колонка без цифр (рекомендовано nvim-ufo)
+  -- 0. STATUSCOL — кастомная статус-колонка слева (fold + signs + numbers).
+  -- Рекомендовано nvim-ufo для правильной отрисовки fold-маркеров.
+  -- ============================================================================
+  --
+  -- ВАЖНО про фильтры sign-сегмента (из README statuscol.nvim):
+  --   - "name"      = pattern для LEGACY sign-имени (DapBreakpoint, GitSignsAdd
+  --                   и т.п.) — это старый API через :sign define.
+  --   - "text"      = pattern для глифа EXTMARK-sign'а (текста, которым он
+  --                   отрисован — например "" или "▎").
+  --   - "namespace" = pattern для namespace EXTMARK-sign'а (например имя,
+  --                   с которым плагин создал nvim_create_namespace).
+  --
+  -- vim.diagnostic.config({signs = ...}) в Neovim 0.10+ рисует значки через
+  -- EXTMARKS, не через legacy :sign API. Поэтому "name" один не подходит —
+  -- нужен "text" и/или "namespace".
+  --
+  -- Указываем все три фильтра с wildcard ".*" — это ловит:
+  --   - diagnostic signs (extmark, namespace "vim_lsp_diagnostic_signs"
+  --     и подобные);
+  --   - gitsigns (extmark, namespace "gitsigns_*");
+  --   - DAP breakpoints (legacy, name "DapBreakpoint*");
+  --   - все будущие источники signs.
   -- ============================================================================
 
   {
-  "luukvbaal/statuscol.nvim",
-  lazy = false,
-  config = function()
-    local builtin = require("statuscol.builtin")
+    "luukvbaal/statuscol.nvim",
+    lazy = false,
+    config = function()
+      local builtin = require("statuscol.builtin")
 
-    require("statuscol").setup({
-      ft_ignore = { "neo-tree", "aerial" },
-      segments = {
-        {
-          text = { builtin.foldfunc, " " },
-          hl = "FoldColumn",
-          click = "v:lua.ScFa",
+      require("statuscol").setup({
+        -- В этих окнах своя статус-колонка не нужна — у них собственные
+        -- виджеты слева от текста (дерево/иерархия).
+        ft_ignore = { "neo-tree", "aerial" },
+
+        segments = {
+          -- 1) Fold-колонка: маркеры свёрнутых блоков из nvim-ufo.
+          {
+            text = { builtin.foldfunc, " " },
+            hl = "FoldColumn",
+            click = "v:lua.ScFa",
+          },
+
+          -- 2) Sign-колонка: диагностики LSP, gitsigns, DAP-брейкпойнты.
+          --    Тройной фильтр (text + namespace + name) перекрывает обе
+          --    реализации sign-API: и legacy, и extmark.
+          {
+            sign = {
+              text      = { ".*" },
+              namespace = { ".*" },
+              name      = { ".*" },
+              maxwidth  = 2,
+              colwidth  = 1,
+              auto      = true,
+            },
+            click = "v:lua.ScSa",
+          },
+
+          -- 3) Колонка номеров строк (абсолютный + relative из options.lua).
+          {
+            text = { builtin.lnumfunc, " " },
+            click = "v:lua.ScLa",
+          },
         },
-        {
-          sign = { namespace = { "diagnostic/signs", "gitsigns" }, maxwidth = 1, auto = true },
-          click = "v:lua.ScSa",
-        },
-        {
-          text = { builtin.lnumfunc, " " },
-          click = "v:lua.ScLa",
-        },
-      },
-    })
-  end,
-},
+      })
+    end,
+  },
 
   -- ============================================================================
   -- 1. AERIAL — список функций/классов/методов файла в боковой панели
@@ -116,11 +154,16 @@ return {
       vim.opt.foldlevelstart = 99
       vim.opt.foldenable = true
 
+      -- Глифы для fillchars записываем через "\u{XXXX}" — Lua escape
+      -- для Unicode code-point. Это обычный ASCII в исходнике, ничего
+      -- никуда не теряется при копировании через буфер обмена.
+      --   "\u{f0d7}" =  (FA caret-down, открытая сворачиваемая секция)
+      --   "\u{f0da}" =  (FA caret-right, закрытая сворачиваемая секция)
       vim.opt.fillchars:append({
         fold = " ",
-        foldopen = "",
+        foldopen = "\u{f0d7}",
         foldsep = " ",
-        foldclose = "",
+        foldclose = "\u{f0da}",
       })
 
       local fold_fg = "#7A8382"

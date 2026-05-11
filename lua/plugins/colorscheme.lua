@@ -53,8 +53,8 @@ return {
           EndOfBuffer  = { bg = "none" },
 
           -- Floating-окна — сохраняем привычный вид
-          NormalFloat  = { bg = theme.ui.bg_dim, fg = theme.ui.fg },
-          FloatBorder  = { bg = theme.ui.bg_dim, fg = theme.syn.fun },
+          NormalFloat = { bg = "none", fg = theme.ui.fg },
+          FloatBorder = { bg = "none", fg = theme.syn.fun },
           FloatTitle   = { bg = theme.ui.bg_dim, fg = theme.syn.special1, bold = true },
           FloatFooter  = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
 
@@ -134,6 +134,21 @@ return {
           -- ── lualine "buffers" компонент ────────────────────────────
           LualineBufferActive   = { bg = "none", fg = palette.crystalBlue, bold = true },
           LualineBufferInactive = { bg = "none", fg = theme.ui.fg_dim },
+
+          -- ── Mason LSP компонент ────────────────────────────
+          -- Ключевое: используем theme.ui.bg_dim / theme.ui.fg_dim (с подчёркиванием)
+          MasonNormal           = { bg = "none", fg = theme.ui.fg },
+          MasonBorder           = { bg = "none", fg = theme.syn.fun },
+          MasonHeader           = { bg = "none", fg = theme.syn.special1, bold = true },
+          MasonHeaderSecondary  = { bg = "none", fg = theme.syn.fun, bold = true },
+          MasonMuted            = { fg = theme.ui.fg_dim },
+          MasonHighlight        = { fg = theme.syn.fun },
+          MasonHighlightBlock   = { fg = theme.syn.special1 },
+          MasonHighlightBlockBold = { fg = theme.syn.special1, bold = true },
+          MasonHighlightSecondary = { fg = theme.syn.fun },
+          MasonLink             = { fg = palette.crystalBlue },
+          MasonError            = { fg = palette.surimiOrange },
+          MasonWarning          = { fg = palette.waveRed },
         }
       end,
     },
