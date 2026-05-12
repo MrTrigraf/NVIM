@@ -28,6 +28,7 @@ return {
       ensure_installed = {
         "gopls",
         "yaml-language-server",
+        "json-lsp",
       },
       auto_update  = false,
       run_on_start = true,
@@ -81,7 +82,7 @@ return {
   -- SchemaStore.nvim: каталог JSON/YAML-схем со SchemaStore.org.
   -- ────────────────────────────────────────────────────────────────────
   -- Сам по себе ничего не делает — это библиотека-таблица.
-  -- yamlls и (позже) jsonls берут отсюда схемы через
+  -- yamlls и jsonls берут отсюда схемы через
   -- require("schemastore").yaml.schemas() / .json.schemas().
   -- Поэтому lazy=true: загрузится только когда первый раз позовут.
   -- version=false — всегда свежая main-ветка (схемы обновляются часто).
@@ -91,7 +92,7 @@ return {
     version = false,
   },
 
-  -- nvim-lspconfig + LspAttach + gopls + yamlls.
+  -- nvim-lspconfig + LspAttach + gopls + yamlls + jsonls.
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -245,6 +246,11 @@ return {
       -- схем со SchemaStore.org (Kubernetes, docker-compose, GitHub
       -- Actions, GitLab CI, OpenAPI, kustomization и т.д.). Сервер
       -- сам сопоставляет схему по паттерну пути файла.
+      --
+      -- Дополнительно: ключ "kubernetes" в schemas — это магическое
+      -- слово yamlls, активирующее его встроенную k8s-схему для
+      -- перечисленных path-паттернов. SchemaStore не умеет детектить
+      -- k8s по apiVersion/kind, поэтому полагаемся на конвенции имён.
       vim.lsp.config("yamlls", {
         filetypes    = { "yaml", "yaml.docker-compose", "yaml.gitlab" },
         root_markers = { ".git" },
@@ -256,6 +262,7 @@ return {
               enable = false,
               url    = "",
             },
+            -- Каталог SchemaStore + ручной mapping для k8s.
             schemas = vim.tbl_extend("force",
               require("schemastore").yaml.schemas(),
               {
@@ -288,9 +295,8 @@ return {
             -- будет всплывающий вопрос про опт-ин).
             telemetry = { enabled = false },
 
-            -- Чтобы k8s-схемы корректно подхватывались по apiVersion +
-            -- kind, нужно дополнительно включить kubernetes-режим.
-            -- Применяется к файлам с kubernetes-подобной структурой.
+            -- В k8s порядок ключей не важен (apiVersion может идти
+            -- после kind, и т.п.). Не ругаемся на это.
             keyOrdering = false,
           },
           -- Альтернативный путь, который yamlls тоже читает.
@@ -299,6 +305,29 @@ return {
       })
 
       vim.lsp.enable("yamlls")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- jsonls (VS Code JSON Language Server).
+      -- ──────────────────────────────────────────────────────────────
+      -- Принимает обычный JSON и JSONC (JSON-with-comments, как в
+      -- tsconfig.json или .vscode/settings.json).
+      -- Схемы — из того же SchemaStore: package.json, tsconfig,
+      -- .eslintrc, .prettierrc, .devcontainer.json и сотни других.
+      -- Привязка к файлам — по имени, автоматически.
+      vim.lsp.config("jsonls", {
+        filetypes    = { "json", "jsonc" },
+        root_markers = { ".git" },
+        settings = {
+          json = {
+            schemas  = require("schemastore").json.schemas(),
+            -- У jsonls validate — это вложенная таблица, а не булеан.
+            -- Специфика VS Code JSON Language Server.
+            validate = { enable = true },
+          },
+        },
+      })
+
+      vim.lsp.enable("jsonls")
     end,
   },
 }
