@@ -15,6 +15,8 @@ vim.g.maplocalleader = " "
 -- background и т.п.
 require("config.options")
 
+require("config.filetypes")
+
 -- Глобальные пользовательские биндинги (не плагинные).
 require("config.keymaps")
 
