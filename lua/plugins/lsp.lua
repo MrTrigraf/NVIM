@@ -25,7 +25,10 @@ return {
     dependencies = { "mason-org/mason.nvim" },
     event = "VimEnter",
     opts = {
-      ensure_installed = { "gopls" },
+      ensure_installed = {
+        "gopls",
+        "yaml-language-server",
+      },
       auto_update  = false,
       run_on_start = true,
       start_delay  = 3000,
@@ -74,7 +77,21 @@ return {
     },
   },
 
-  -- nvim-lspconfig + LspAttach + gopls.
+  -- ────────────────────────────────────────────────────────────────────
+  -- SchemaStore.nvim: каталог JSON/YAML-схем со SchemaStore.org.
+  -- ────────────────────────────────────────────────────────────────────
+  -- Сам по себе ничего не делает — это библиотека-таблица.
+  -- yamlls и (позже) jsonls берут отсюда схемы через
+  -- require("schemastore").yaml.schemas() / .json.schemas().
+  -- Поэтому lazy=true: загрузится только когда первый раз позовут.
+  -- version=false — всегда свежая main-ветка (схемы обновляются часто).
+  {
+    "b0o/SchemaStore.nvim",
+    lazy    = true,
+    version = false,
+  },
+
+  -- nvim-lspconfig + LspAttach + gopls + yamlls.
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -130,13 +147,8 @@ return {
           map("n", "<leader>lr", vim.lsp.buf.rename, "LSP: Rename symbol")
 
           -- ── Code lens ────────────────────────────────────────────
-          -- <leader>lc — запустить code lens под курсором (Neovim
-          -- показывает меню "▶ run | ▶ debug | ..." если их несколько).
-          --
-          -- Авто-refresh в Neovim 0.12+ делает сам vim.lsp.codelens.enable():
-          -- включает приём lens'ов от сервера и обновляет их по
-          -- внутренним событиям. Самописная autocmd-группа больше
-          -- не нужна (старый refresh() депрекейтнут в 0.12).
+          -- <leader>lc — запустить code lens под курсором.
+          -- В Neovim 0.12+ enable() сам поддерживает lens'ы свежими.
           if client:supports_method("textDocument/codeLens") then
             map("n", "<leader>lc", vim.lsp.codelens.run, "LSP: Run code lens")
             vim.lsp.codelens.enable(true, { bufnr = bufnr })
@@ -164,15 +176,10 @@ return {
               callback = vim.lsp.buf.clear_references,
             })
           end
-
-          -- Авто signature help теперь делает lsp_signature.nvim (spec
-          -- выше). Самописный InsertCharPre-блок удалён.
         end,
       })
 
       -- LspDetach: чистим document_highlight группу и подсветки.
-      -- Code lens отключается через vim.lsp.codelens.enable(false, ...)
-      -- автоматически при detach клиента — ручная очистка не нужна.
       vim.api.nvim_create_autocmd("LspDetach", {
         group = vim.api.nvim_create_augroup("user-lsp-detach", { clear = true }),
         callback = function(ev)
@@ -230,6 +237,51 @@ return {
       })
 
       vim.lsp.enable("gopls")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- yamlls (Red Hat YAML language server).
+      -- ──────────────────────────────────────────────────────────────
+      -- Схемы берём из b0o/SchemaStore.nvim — это даёт ~700 актуальных
+      -- схем со SchemaStore.org (Kubernetes, docker-compose, GitHub
+      -- Actions, GitLab CI, OpenAPI, kustomization и т.д.). Сервер
+      -- сам сопоставляет схему по паттерну пути файла.
+      vim.lsp.config("yamlls", {
+        filetypes    = { "yaml", "yaml.docker-compose", "yaml.gitlab" },
+        root_markers = { ".git" },
+        settings = {
+          yaml = {
+            -- Отключаем встроенный SchemaStore yamlls — у него своя
+            -- (устаревшая) база. Используем только b0o/SchemaStore.
+            schemaStore = {
+              enable = false,
+              url    = "",
+            },
+            schemas = require("schemastore").yaml.schemas(),
+
+            -- Включаем валидацию, hover, автокомплит.
+            validate   = true,
+            hover      = true,
+            completion = true,
+
+            -- Форматирование внутри yamlls слабое — оставляем
+            -- conform.nvim/prettier в Блоке 7.
+            format = { enable = false },
+
+            -- Гасим телеметрию Red Hat (иначе при первом запуске
+            -- будет всплывающий вопрос про опт-ин).
+            telemetry = { enabled = false },
+
+            -- Чтобы k8s-схемы корректно подхватывались по apiVersion +
+            -- kind, нужно дополнительно включить kubernetes-режим.
+            -- Применяется к файлам с kubernetes-подобной структурой.
+            keyOrdering = false,
+          },
+          -- Альтернативный путь, который yamlls тоже читает.
+          redhat = { telemetry = { enabled = false } },
+        },
+      })
+
+      vim.lsp.enable("yamlls")
     end,
   },
 }
