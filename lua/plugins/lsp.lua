@@ -256,7 +256,24 @@ return {
               enable = false,
               url    = "",
             },
-            schemas = require("schemastore").yaml.schemas(),
+            schemas = vim.tbl_extend("force",
+              require("schemastore").yaml.schemas(),
+              {
+                kubernetes = {
+                  "k8s/**/*.{yml,yaml}",
+                  "kubernetes/**/*.{yml,yaml}",
+                  "manifests/**/*.{yml,yaml}",
+                  "kustomization.{yml,yaml}",
+                  "*deployment.{yml,yaml}",
+                  "*statefulset.{yml,yaml}",
+                  "*daemonset.{yml,yaml}",
+                  "*service.{yml,yaml}",
+                  "*ingress.{yml,yaml}",
+                  "*configmap.{yml,yaml}",
+                  "*pvc.{yml,yaml}",
+                },
+              }
+            ),
 
             -- Включаем валидацию, hover, автокомплит.
             validate   = true,
