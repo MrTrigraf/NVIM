@@ -2,22 +2,38 @@
 -- lua/plugins/treesitter.lua
 -- Treesitter — современная подсветка синтаксиса через парсинг кода в AST.
 -- Также даёт текстовые объекты для редактирования (vaf, vif, etc).
+--
+-- ВАЖНО: используем ВЕТКУ `main`, не `master`. В Neovim 0.12 ядро ввело
+-- новый decoration provider `conceal_line`, и старая ветка master падает
+-- на любом файле с predicate `(#set! "conceal_lines" "")` — это видно как
+-- ошибка `attempt to call method 'range' (a nil value)` в :messages.
+--
+-- Ветка `main` — это будущий v1.0 nvim-treesitter, с переписанным API:
+--   - нет таблицы opts с `ensure_installed`/`highlight.enable`/`indent`;
+--   - парсеры ставятся через `require("nvim-treesitter").install({...})`;
+--   - подсветка/индент включаются АВТОКОМАНДОЙ FileType, не в setup'е.
+--   - ТРЕБУЕТСЯ системный CLI `tree-sitter` в PATH
+--     (pacman -S tree-sitter-cli).
 -- ============================================================================
 
 return {
   -- =========================================================================
-  -- nvim-treesitter (master ветка — стабильный API)
-  -- highlight, indent, incremental_selection
+  -- nvim-treesitter (ветка main — будущий v1.0)
   -- =========================================================================
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "master",
+    branch = "main",
+    lazy = false, -- грузим сразу, чтобы FileType-автокоманда успела
+                  -- зарегистрироваться до открытия первого файла
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
     cmd = { "TSUpdate", "TSInstall", "TSInstallInfo", "TSUpdateSync" },
-    main = "nvim-treesitter.configs",
-    opts = {
-      ensure_installed = {
+
+    config = function()
+      -- Список нужных парсеров.
+      -- ПРИМЕЧАНИЕ: jsonc (JSON с комментариями) пока не поддерживается
+      -- main-веткой — для tsconfig/devcontainer.json временно используется
+      -- обычный json-парсер; jsonls LSP-сервер всё равно понимает комментарии.
+      local parsers = {
         -- Группа A: основа
         "go", "gomod", "gosum", "gowork",
         "lua", "luadoc",
@@ -31,7 +47,7 @@ return {
 
         -- Группа B: бэкенд
         "yaml",
-        "json", "jsonc",
+        "json",
         "toml",
         "dockerfile",
         "sql",
@@ -49,38 +65,58 @@ return {
 
         -- Группа E: fish
         "fish",
-      },
-      sync_install = false,
-      auto_install = true,
+      }
 
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      },
-
-      indent = {
-        enable = true,
-      },
-      
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection    = "<C-Space>",
-          node_incremental  = "<C-Space>",
-          scope_incremental = "<C-s>",
-          node_decremental  = "<BS>",
-        },
-      },
-    },
-    config = function(_, opts)
-      local ok, configs = pcall(require, "nvim-treesitter.configs")
-      if not ok then
-        vim.notify("nvim-treesitter.configs not found", vim.log.levels.ERROR)
-        return
+      -- ─── Установка недостающих парсеров ────────────────────────────────
+      -- В новом API нет "ensure_installed" — сравниваем список нужных с
+      -- уже установленными и докачиваем недостающее. Установка асинхронная,
+      -- не блокирует UI.
+      local ts = require("nvim-treesitter")
+      local installed = ts.get_installed("parsers")
+      local installed_set = {}
+      for _, name in ipairs(installed) do
+        installed_set[name] = true
       end
-      configs.setup(opts)
 
-      -- Маппинг filetype для .env-файлов — подсветка через bash-парсер.
+      local missing = {}
+      for _, name in ipairs(parsers) do
+        if not installed_set[name] then
+          table.insert(missing, name)
+        end
+      end
+
+      if #missing > 0 then
+        vim.notify(
+          "Treesitter: устанавливаю парсеры (" .. #missing .. "): "
+            .. table.concat(missing, ", "),
+          vim.log.levels.INFO
+        )
+        ts.install(missing)
+      end
+
+      -- ─── Включение подсветки и индента ─────────────────────────────────
+      -- В новом API нет глобального `highlight.enable = true` — каждый
+      -- буфер включает подсветку САМ через автокоманду FileType.
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("user-treesitter-start", { clear = true }),
+        callback = function(args)
+          -- Подсветка (highlight).
+          local ok = pcall(vim.treesitter.start, args.buf)
+          if not ok then return end
+
+          -- Индент по AST.
+          pcall(function()
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end)
+
+          -- Folds от treesitter (fallback для nvim-ufo).
+          vim.wo.foldmethod = "expr"
+          vim.wo.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
+        end,
+      })
+
+      -- ─── Маппинг filetype для .env-файлов ──────────────────────────────
+      -- Подсветка через bash-парсер: .env по сути shell-переменные.
       vim.filetype.add({
         filename = {
           [".env"] = "sh",
@@ -93,8 +129,8 @@ return {
   },
 
   -- =========================================================================
-  -- nvim-treesitter-textobjects (main ветка — новый API)
-  -- даёт vaf/vif, dia, ]f/[f, ]c/[c
+  -- nvim-treesitter-textobjects (тоже ветка main).
+  -- Даёт vaf/vif, dia, ]f/[f, ]c/[c.
   -- =========================================================================
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
@@ -110,15 +146,14 @@ return {
 
       ts_to.setup({
         select = {
-          lookahead = true,                  -- если объект не под курсором — прыгнуть к ближайшему
+          lookahead = true,
           include_surrounding_whitespace = false,
         },
         move = {
-          set_jumps = true,                  -- движения попадают в jumplist (Ctrl-O возвращает)
+          set_jumps = true,
         },
       })
 
-      -- В новом API биндинги делаются вручную через select_textobject и goto_*
       local select = require("nvim-treesitter-textobjects.select")
       local move   = require("nvim-treesitter-textobjects.move")
 
@@ -133,11 +168,11 @@ return {
         end
       end
 
-      map_select("af", "@function.outer")    -- around function
-      map_select("if", "@function.inner")    -- inside function
-      map_select("ac", "@class.outer")       -- around class/struct
+      map_select("af", "@function.outer")
+      map_select("if", "@function.inner")
+      map_select("ac", "@class.outer")
       map_select("ic", "@class.inner")
-      map_select("aa", "@parameter.outer")   -- around argument
+      map_select("aa", "@parameter.outer")
       map_select("ia", "@parameter.inner")
       map_select("al", "@loop.outer")
       map_select("il", "@loop.inner")
@@ -161,7 +196,7 @@ return {
   },
 
   -- =========================================================================
-  -- nvim-ts-autotag — автозакрытие XML/HTML тегов
+  -- nvim-ts-autotag — автозакрытие XML/HTML тегов.
   -- =========================================================================
   {
     "windwp/nvim-ts-autotag",
