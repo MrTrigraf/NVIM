@@ -1,5 +1,5 @@
 -- lua/plugins/lsp.lua
--- LSP-инфраструктура: Mason + nvim-lspconfig + LspAttach с биндингами.
+-- LSP-инфраструктура: Mason + nvim-lspconfig + lsp_signature.nvim + LspAttach.
 
 return {
   -- Mason: менеджер бинарников.
@@ -29,6 +29,48 @@ return {
       auto_update  = false,
       run_on_start = true,
       start_delay  = 3000,
+    },
+  },
+
+  -- ────────────────────────────────────────────────────────────────────
+  -- lsp_signature.nvim: подсказка сигнатуры функции при наборе ( и ,.
+  -- ────────────────────────────────────────────────────────────────────
+  -- Режим: hint-only — серый ghost-текст рядом с курсором с именем
+  -- активного параметра, без всплывающего окна. VS Code-аналог:
+  -- Parameter Hints, но не popup, а inline-подсказка.
+  --
+  -- Если захочется ещё и floating popup (полная сигнатура с типами):
+  --   floating_window = true
+  -- Полный popup всё равно доступен вручную через <C-k> ниже —
+  -- плагин перехватит стандартный handler и нарисует красиво.
+  {
+    "ray-x/lsp_signature.nvim",
+    event = "LspAttach",
+    opts = {
+      -- Обязательный флаг — без него кастомные border/highlight не
+      -- регистрируются (требование плагина).
+      bind = true,
+
+      -- Floating window выключен: видим только hint.
+      floating_window = false,
+
+      -- Hint mode: inline ghost-текст с именем активного параметра.
+      hint_enable = true,
+      hint_prefix = "\u{25B8} ",   -- ▸ — маркер перед параметром
+      hint_scheme = "Comment",     -- highlight-группа (серый тон)
+
+      -- Подсветка активного параметра внутри popup (для <C-k>).
+      hi_parameter = "Search",
+
+      -- Граница floating-окна — используется при ручном <C-k>.
+      handler_opts = { border = "rounded" },
+
+      -- Не показывать пустой ответ от сервера ("(no signature)").
+      always_trigger = false,
+
+      -- Свои биндинги плагина выключены — у нас уже <C-k> в LspAttach.
+      toggle_key = nil,
+      select_signature_key = nil,
     },
   },
 
@@ -67,8 +109,10 @@ return {
           map("n", "gI", vim.lsp.buf.implementation,  "LSP: Implementation")
           map("n", "gy", vim.lsp.buf.type_definition, "LSP: Type definition")
 
-          -- ── Signature help в Insert (вручную, всегда работает) ───
-          -- K биндится в navigation.lua через ufo (peek + LSP hover).
+          -- ── Signature help (ручной вызов) ────────────────────────
+          -- <C-k> в insert: открывает полное floating-окно с сигнатурой
+          -- (lsp_signature.nvim перехватывает handler и стилизует его).
+          -- Авто-подсказка inline идёт через lsp_signature.nvim (выше).
           map("i", "<C-k>", vim.lsp.buf.signature_help, "LSP: Signature help")
 
           -- ── Code actions ─────────────────────────────────────────
@@ -87,27 +131,15 @@ return {
 
           -- ── Code lens ────────────────────────────────────────────
           -- <leader>lc — запустить code lens под курсором (Neovim
-          -- показывает меню "▶ run | ▶ debug | ..."). Авто-refresh
-          -- ниже периодически обновляет список lens'ов от сервера.
+          -- показывает меню "▶ run | ▶ debug | ..." если их несколько).
+          --
+          -- Авто-refresh в Neovim 0.12+ делает сам vim.lsp.codelens.enable():
+          -- включает приём lens'ов от сервера и обновляет их по
+          -- внутренним событиям. Самописная autocmd-группа больше
+          -- не нужна (старый refresh() депрекейтнут в 0.12).
           if client:supports_method("textDocument/codeLens") then
             map("n", "<leader>lc", vim.lsp.codelens.run, "LSP: Run code lens")
-
-            -- Авто-refresh code lens: на входе в буфер, выходе из
-            -- insert-режима, и на CursorHold. Lens'ы устаревают при
-            -- правках, поэтому refresh нужен регулярно.
-            local cl_group = vim.api.nvim_create_augroup("user-lsp-codelens-" .. bufnr, { clear = true })
-            vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave", "CursorHold" }, {
-              group  = cl_group,
-              buffer = bufnr,
-              callback = function()
-                pcall(vim.lsp.codelens.refresh, { bufnr = bufnr })
-              end,
-            })
-            -- Первый refresh сразу при attach (асинхронно через schedule,
-            -- чтобы дождаться полной готовности клиента).
-            vim.schedule(function()
-              pcall(vim.lsp.codelens.refresh, { bufnr = bufnr })
-            end)
+            vim.lsp.codelens.enable(true, { bufnr = bufnr })
           end
 
           -- ── Inlay hints (выключены по умолчанию, toggle <leader>li) ─
@@ -133,64 +165,22 @@ return {
             })
           end
 
-          -- ── Авто signature help при наборе ( и , ─────────────────
-          -- Эмулируем поведение VS Code: при наборе открывающей скобки
-          -- или запятой внутри вызова функции автоматически открываем
-          -- popup со списком параметров.
-          --
-          -- Реализация: ловим InsertCharPre — это событие, в котором
-          -- Vim сообщает символ, ЕЩЁ НЕ вставленный в буфер. Если это
-          -- "(" или "," — запускаем signature_help через vim.schedule
-          -- (чтобы символ успел вставиться и LSP видел актуальный
-          -- контекст).
-          --
-          -- Активные триггеры берём у самого сервера: для gopls это
-          -- "(", ",". Если сервер не объявляет triggerCharacters —
-          -- падаем к фиксированному списку.
-          if client:supports_method("textDocument/signatureHelp") then
-            local triggers = vim.tbl_get(client, "server_capabilities", "signatureHelpProvider", "triggerCharacters")
-                          or { "(", "," }
-
-            local trigger_set = {}
-            for _, ch in ipairs(triggers) do
-              trigger_set[ch] = true
-            end
-
-            local sig_group = vim.api.nvim_create_augroup("user-lsp-sighelp-" .. bufnr, { clear = true })
-            vim.api.nvim_create_autocmd("InsertCharPre", {
-              group  = sig_group,
-              buffer = bufnr,
-              callback = function()
-                if trigger_set[vim.v.char] then
-                  vim.schedule(function()
-                    -- Открываем только если буфер всё ещё активный и
-                    -- мы всё ещё в insert-режиме (пользователь мог
-                    -- успеть выйти).
-                    if vim.api.nvim_get_current_buf() == bufnr
-                       and vim.api.nvim_get_mode().mode:sub(1, 1) == "i"
-                    then
-                      pcall(vim.lsp.buf.signature_help)
-                    end
-                  end)
-                end
-              end,
-            })
-          end
+          -- Авто signature help теперь делает lsp_signature.nvim (spec
+          -- выше). Самописный InsertCharPre-блок удалён.
         end,
       })
 
-      -- LspDetach: чистим autocommands и подсветки при отключении сервера.
+      -- LspDetach: чистим document_highlight группу и подсветки.
+      -- Code lens отключается через vim.lsp.codelens.enable(false, ...)
+      -- автоматически при detach клиента — ручная очистка не нужна.
       vim.api.nvim_create_autocmd("LspDetach", {
         group = vim.api.nvim_create_augroup("user-lsp-detach", { clear = true }),
         callback = function(ev)
           vim.lsp.buf.clear_references()
-          for _, group in ipairs({
-            "user-lsp-highlight-" .. ev.buf,
-            "user-lsp-codelens-" .. ev.buf,
-            "user-lsp-sighelp-" .. ev.buf,
-          }) do
-            pcall(vim.api.nvim_clear_autocmds, { group = group, buffer = ev.buf })
-          end
+          pcall(vim.api.nvim_clear_autocmds, {
+            group  = "user-lsp-highlight-" .. ev.buf,
+            buffer = ev.buf,
+          })
         end,
       })
 
