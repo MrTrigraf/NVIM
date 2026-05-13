@@ -30,6 +30,8 @@ return {
         "yaml-language-server",
         "json-lsp",
         "taplo",
+        "dockerfile-language-server",
+        "docker-compose-language-service",
       },
       auto_update  = false,
       run_on_start = true,
@@ -96,7 +98,8 @@ return {
     version = false,
   },
 
-  -- nvim-lspconfig + LspAttach + gopls + yamlls + jsonls + taplo.
+  -- nvim-lspconfig + LspAttach + gopls + yamlls + jsonls + taplo +
+  -- dockerls + docker_compose_language_service.
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -260,13 +263,10 @@ return {
         root_markers = { ".git" },
         settings = {
           yaml = {
-            -- Отключаем встроенный SchemaStore yamlls — у него своя
-            -- (устаревшая) база. Используем только b0o/SchemaStore.
             schemaStore = {
               enable = false,
               url    = "",
             },
-            -- Каталог SchemaStore + ручной mapping для k8s.
             schemas = vim.tbl_extend("force",
               require("schemastore").yaml.schemas(),
               {
@@ -283,27 +283,29 @@ return {
                   "*configmap.{yml,yaml}",
                   "*pvc.{yml,yaml}",
                 },
+                ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
+                  "compose.yml",
+                  "compose.yaml",
+                  "compose.*.yml",
+                  "compose.*.yaml",
+                  "docker-compose.yml",
+                  "docker-compose.yaml",
+                  "docker-compose.*.yml",
+                  "docker-compose.*.yaml",
+                },
               }
             ),
 
-            -- Включаем валидацию, hover, автокомплит.
             validate   = true,
             hover      = true,
             completion = true,
 
-            -- Форматирование внутри yamlls слабое — оставляем
-            -- conform.nvim/prettier в Блоке 7.
             format = { enable = false },
 
-            -- Гасим телеметрию Red Hat (иначе при первом запуске
-            -- будет всплывающий вопрос про опт-ин).
             telemetry = { enabled = false },
 
-            -- В k8s порядок ключей не важен (apiVersion может идти
-            -- после kind, и т.п.). Не ругаемся на это.
             keyOrdering = false,
           },
-          -- Альтернативный путь, который yamlls тоже читает.
           redhat = { telemetry = { enabled = false } },
         },
       })
@@ -340,12 +342,56 @@ return {
       -- TOML-схем: Cargo.toml, pyproject.toml, .taplo.toml, rustfmt.toml
       -- и т.д. Сопоставление со схемой идёт автоматически по имени
       -- файла — наша задача только подключить сервер.
+      --
+      -- ВНИМАНИЕ: taplo молча исключает файлы вне git-репозитория
+      -- (single-file режим без root marker). В /tmp/ работает, но
+      -- выдаёт hint-уровень "this document has been excluded" — это
+      -- не баг, просто не для прод-валидации. В обычном проекте с
+      -- .git всё работает штатно.
       vim.lsp.config("taplo", {
         filetypes    = { "toml" },
         root_markers = { ".taplo.toml", "taplo.toml", ".git" },
       })
 
       vim.lsp.enable("taplo")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- dockerls (Dockerfile language server).
+      -- ──────────────────────────────────────────────────────────────
+      -- LSP для Dockerfile: автокомплит инструкций (FROM, RUN, COPY,
+      -- WORKDIR, ENV, EXPOSE, CMD, ENTRYPOINT и т.д.), hover-документация
+      -- на K, базовая валидация синтаксиса.
+      --
+      -- Глубокие проверки best-practices (избегать ADD, не запускать
+      -- от root, использовать конкретные теги вместо latest и т.д.)
+      -- делает hadolint — он подключается через nvim-lint в Блоке 7.
+      vim.lsp.config("dockerls", {
+        filetypes    = { "dockerfile" },
+        root_markers = { "Dockerfile", ".git" },
+      })
+
+      vim.lsp.enable("dockerls")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- docker_compose_language_service.
+      -- ──────────────────────────────────────────────────────────────
+      -- LSP, специально знающий про compose-spec: автокомплит для
+      -- depends_on (предлагает другие сервисы из этого же файла),
+      -- semantic-навигация (gd на имя сервиса в depends_on прыгнет
+      -- к его определению), hover с описаниями полей.
+      --
+      -- Работает ПАРАЛЛЕЛЬНО с yamlls на том же файле compose.yml:
+      -- yamlls даёт schema-валидацию из SchemaStore, compose-LS —
+      -- доменно-специфичные фичи. Это нормальная LSP-практика.
+      --
+      -- Filetype "yaml.docker-compose" Neovim 0.10+ распознаёт сам
+      -- для файлов compose.yml / docker-compose.yml / *.compose.yml.
+      vim.lsp.config("docker_compose_language_service", {
+        filetypes    = { "yaml.docker-compose" },
+        root_markers = { "docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml", ".git" },
+      })
+
+      vim.lsp.enable("docker_compose_language_service")
     end,
   },
 }
