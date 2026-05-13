@@ -33,6 +33,9 @@ return {
         "taplo",
         "dockerfile-language-server",
         "docker-compose-language-service",
+        "lua-language-server",
+        "bash-language-server",
+        "marksman",
       },
       auto_update  = false,
       run_on_start = true,
@@ -43,14 +46,6 @@ return {
   -- ────────────────────────────────────────────────────────────────────
   -- lsp_signature.nvim: подсказка сигнатуры функции при наборе ( и ,.
   -- ────────────────────────────────────────────────────────────────────
-  -- Режим: hint-only — серый ghost-текст рядом с курсором с именем
-  -- активного параметра, без всплывающего окна. VS Code-аналог:
-  -- Parameter Hints, но не popup, а inline-подсказка.
-  --
-  -- Если захочется ещё и floating popup (полная сигнатура с типами):
-  --   floating_window = true
-  -- Полный popup всё равно доступен вручную через <C-k> ниже —
-  -- плагин перехватит стандартный handler и нарисует красиво.
   {
     "ray-x/lsp_signature.nvim",
     event = "LspAttach",
@@ -77,33 +72,18 @@ return {
   -- ────────────────────────────────────────────────────────────────────
   -- fidget.nvim: toast LSP-прогресса в правом нижнем углу.
   -- ────────────────────────────────────────────────────────────────────
-  -- Перехватывает $/progress нотификации от любого LSP-сервера
-  -- (gopls "indexing workspace", yamlls "loading schemas", и т.п.)
-  -- и показывает их компактным toast'ом. После завершения toast
-  -- гаснет через 1-2 секунды.
-  --
-  -- VS Code-аналог: маленькие сообщения в статус-баре слева ("Loading:
-  -- 5/120", "Initializing language server"). Те же LSP $/progress,
-  -- другой рендер.
   {
     "j-hui/fidget.nvim",
     event = "LspAttach",
     opts = {
       progress = {
         display = {
-          -- Анимация спиннера слева от прогресса. Встроенные паттерны:
-          -- dots, line, arc, arrow, bouncing_bar, circle_quarters и т.д.
-          -- См. :help fidget-spinners для полного списка.
           progress_icon = { pattern = "dots" },
-          -- Галочка после завершения операции.
           done_icon = "\u{2713}",
         },
       },
       notification = {
         window = {
-          -- Прозрачность фона toast-окна (0 = непрозрачный, 100 =
-          -- полностью прозрачный). У нас kanagawa transparent=true,
-          -- поэтому ставим 0 — иначе текст сольётся с обоями.
           winblend = 0,
         },
       },
@@ -358,6 +338,68 @@ return {
       })
 
       vim.lsp.enable("docker_compose_language_service")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- lua_ls (Lua language server).
+      -- ──────────────────────────────────────────────────────────────
+      -- Знает Neovim API через workspace.library — даёт автокомплит
+      -- для vim.api.*, vim.keymap.*, vim.lsp.*, hover на функции
+      -- Neovim. Globals { "vim" } говорит серверу, что vim — известная
+      -- глобальная переменная (иначе будет warning на каждом
+      -- использовании).
+      vim.lsp.config("lua_ls", {
+        filetypes    = { "lua" },
+        root_markers = { ".luarc.json", ".luarc.jsonc", ".stylua.toml", "stylua.toml", ".git" },
+        settings = {
+          Lua = {
+            runtime = {
+              -- Neovim использует LuaJIT (не Lua 5.4).
+              version = "LuaJIT",
+            },
+            workspace = {
+              -- Не сканировать сторонние библиотеки (slow, не нужно).
+              checkThirdParty = false,
+              -- Подключить рантайм Neovim как библиотеку — даёт
+              -- автокомплит и hover на vim.* API.
+              library = vim.api.nvim_get_runtime_file("", true),
+            },
+            diagnostics = {
+              -- "vim" — известная глобальная переменная.
+              globals = { "vim" },
+            },
+            telemetry = { enable = false },
+          },
+        },
+      })
+
+      vim.lsp.enable("lua_ls")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- bashls (bash language server).
+      -- ──────────────────────────────────────────────────────────────
+      -- Автокомплит, hover, базовая валидация для bash/sh скриптов
+      -- (bootstrap.sh, Makefile-команды в shell-форме, обычные
+      -- скрипты). fish-файлы НЕ обслуживает — для них достаточно
+      -- встроенной подсветки fish.
+      vim.lsp.config("bashls", {
+        filetypes    = { "sh", "bash" },
+        root_markers = { ".git" },
+      })
+
+      vim.lsp.enable("bashls")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- marksman (Markdown language server).
+      -- ──────────────────────────────────────────────────────────────
+      -- Кросс-ссылки между файлами, автокомплит для [[wiki-links]],
+      -- folding по заголовкам, references на заголовки внутри
+      -- проекта.
+      vim.lsp.config("marksman", {
+        filetypes    = { "markdown" },
+        root_markers = { ".marksman.toml", ".git" },
+      })
+
+      vim.lsp.enable("marksman")
     end,
   },
 }
