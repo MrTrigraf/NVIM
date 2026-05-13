@@ -29,6 +29,7 @@ return {
         "gopls",
         "yaml-language-server",
         "json-lsp",
+        "taplo",
       },
       auto_update  = false,
       run_on_start = true,
@@ -86,13 +87,16 @@ return {
   -- require("schemastore").yaml.schemas() / .json.schemas().
   -- Поэтому lazy=true: загрузится только когда первый раз позовут.
   -- version=false — всегда свежая main-ветка (схемы обновляются часто).
+  --
+  -- taplo НЕ использует SchemaStore.nvim — у него собственный встроенный
+  -- каталог схем для TOML-файлов (Cargo.toml, pyproject.toml и т.д.).
   {
     "b0o/SchemaStore.nvim",
     lazy    = true,
     version = false,
   },
 
-  -- nvim-lspconfig + LspAttach + gopls + yamlls + jsonls.
+  -- nvim-lspconfig + LspAttach + gopls + yamlls + jsonls + taplo.
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -328,6 +332,20 @@ return {
       })
 
       vim.lsp.enable("jsonls")
+
+      -- ──────────────────────────────────────────────────────────────
+      -- taplo (TOML language server).
+      -- ──────────────────────────────────────────────────────────────
+      -- taplo написан на Rust и имеет собственный встроенный каталог
+      -- TOML-схем: Cargo.toml, pyproject.toml, .taplo.toml, rustfmt.toml
+      -- и т.д. Сопоставление со схемой идёт автоматически по имени
+      -- файла — наша задача только подключить сервер.
+      vim.lsp.config("taplo", {
+        filetypes    = { "toml" },
+        root_markers = { ".taplo.toml", "taplo.toml", ".git" },
+      })
+
+      vim.lsp.enable("taplo")
     end,
   },
 }
