@@ -134,8 +134,13 @@ return {
           map("n", "gI", vim.lsp.buf.implementation,  "LSP: Implementation")
           map("n", "gy", vim.lsp.buf.type_definition, "LSP: Type definition")
 
-          -- ── Signature help (ручной вызов) ────────────────────────
-          map("i", "<C-k>", vim.lsp.buf.signature_help, "LSP: Signature help")
+          -- ── Signature help ────────────────────────────────────────
+          -- <C-k> в Insert привязан к blink.cmp show_signature
+          -- (см. lua/plugins/completion.lua, preset = "super-tab").
+          -- Inline hint при наборе ( и , даёт ray-x/lsp_signature.nvim
+          -- из этого же файла (выше). Нативный
+          -- vim.lsp.buf.signature_help() здесь больше не маппится —
+          -- popup рисует blink.cmp в едином стиле с completion menu.
 
           -- ── Code actions ─────────────────────────────────────────
           map({ "n", "v" }, "<leader>la", vim.lsp.buf.code_action, "LSP: Code action (all)")
