@@ -27,6 +27,7 @@ return {
     event = "VimEnter",
     opts = {
       ensure_installed = {
+        -- LSP-серверы
         "gopls",
         "yaml-language-server",
         "json-lsp",
@@ -36,6 +37,11 @@ return {
         "lua-language-server",
         "bash-language-server",
         "marksman",
+        -- Форматтеры
+        "gofumpt",
+        "goimports",
+        "golangci-lint",
+        "hadolint",
       },
       auto_update  = false,
       run_on_start = true,
