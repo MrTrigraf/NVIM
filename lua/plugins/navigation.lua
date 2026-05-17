@@ -36,7 +36,16 @@ return {
       require("statuscol").setup({
         -- В этих окнах своя статус-колонка не нужна — у них собственные
         -- виджеты слева от текста (дерево/иерархия).
-        ft_ignore = { "neo-tree", "aerial" },
+        ft_ignore = {
+          "neo-tree",
+          "aerial",
+          "dapui_scopes",
+          "dapui_breakpoints",
+          "dapui_stacks",
+          "dapui_watches",
+          "dapui_console",
+          "dap-repl",
+        },
 
         segments = {
           -- 1) Fold-колонка: маркеры свёрнутых блоков из nvim-ufo.
