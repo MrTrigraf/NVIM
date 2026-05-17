@@ -45,6 +45,7 @@ return {
           "dapui_watches",
           "dapui_console",
           "dap-repl",
+          "neotest-summary",
         },
 
         segments = {
