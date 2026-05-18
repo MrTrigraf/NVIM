@@ -43,7 +43,7 @@ return {
               key = "s",
               desc = "Restore session",
               action = function()
-                vim.notify("persistence.nvim ещё не подключён (Блок 14)", vim.log.levels.WARN)
+                require("persistence").load({ last = true })
               end,
             },
             { icon = "", key = "p", desc = "Projects", action = "<leader>fP" },
