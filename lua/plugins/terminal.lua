@@ -159,8 +159,8 @@ return {
       },
 
       -- term-watch — вертикальный сплит сбоку.
-      -- Заведён под air (hot-reload) — air появится в Блоке 14.
-      -- Пока это просто fish в боковом сплите, готовая именованная "полка".
+      -- Заведён под air (hot-reload). Пока без air — это просто fish
+      -- в боковом сплите; запуск air повешен отдельно на <leader>Ta.
       {
         "<leader>Tw",
         function()
@@ -174,6 +174,36 @@ return {
         end,
         mode = { "n", "t" },
         desc = "Терминал: term-watch (бок, air/watch)",
+      },
+
+      -- term-watch + автозапуск air (hot-reload).
+      -- Открывает ТОТ ЖЕ терминал term-watch (та же env-метка "watch" и
+      -- та же геометрия, что у <leader>Tw — поэтому это одно окно, а не
+      -- новое), затем отправляет в его fish строку "air" + Enter, как
+      -- будто пользователь сам её напечатал. air запускается ВНУТРИ fish:
+      -- когда air остановится (<C-c>) или упадёт, окно не закроется —
+      -- останется живой fish с логами, можно перезапустить.
+      {
+        "<leader>Ta",
+        function()
+          local term = Snacks.terminal.toggle("fish", {
+            env = term_env("watch"),
+            win = {
+              position = "right",
+              width = 0.30,
+            },
+          })
+          -- toggle мог как открыть окно, так и спрятать его. Запускаем air
+          -- только если окно сейчас видимо (term не nil и буфер показан).
+          if term and term.buf and vim.api.nvim_buf_is_valid(term.buf) then
+            local channel = vim.b[term.buf].terminal_job_id
+            if channel then
+              vim.api.nvim_chan_send(channel, "air\n")
+            end
+          end
+        end,
+        mode = { "n", "t" },
+        desc = "Терминал: term-watch + запуск air",
       },
     },
   },
