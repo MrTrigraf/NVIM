@@ -232,3 +232,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end)
   end,
 })
+
+-- Workspace-связанные autocmd живут отдельным модулем.
+require("util.workspace_autocmds")
+require("util.workspace_commands")

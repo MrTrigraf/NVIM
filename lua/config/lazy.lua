@@ -32,7 +32,7 @@ require("lazy").setup({
     { import = "plugins" },
   },
   install = {
-    colorscheme = { "habamax" },
+    colorscheme = { "kanagawa-paper" },
   },
   checker = {
     enabled = false,

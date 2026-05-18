@@ -16,7 +16,6 @@ return {
       end
     end,
   },
-
   -- Плагин 2: nvim-web-devicons (fallback)
   {
     "nvim-tree/nvim-web-devicons",
@@ -55,6 +54,13 @@ return {
         { "<leader>x", group = "diagnostics" },
       },
 
+      win = {
+        no_overlap = true,  -- не перекрывает курсор
+        border = "single",  -- или "rounded" для стиля темы
+        padding = {1, 2},
+        title_pos = "center",
+      },
+
       icons = {
         rules = false,
       },
@@ -69,15 +75,16 @@ return {
     },
   },
 
-   -- Плагин 4: lualine
-  {
+  -- Плагин 4: lualine
+    {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       options = {
-        theme = "kanagawa",                 -- единая палитра с colorscheme
-        globalstatus = true,                -- одна общая statusline на все сплиты
+        -- Тема задаётся в config, чтобы использовать встроенные цвета kanagawa-paper.
+        -- Здесь можно оставить заглушку.
+        globalstatus = true,
         icons_enabled = true,
         component_separators = { left = "│", right = "│" },
         section_separators   = { left = "",  right = "" },
@@ -86,47 +93,97 @@ return {
         },
       },
       sections = {
-        -- слева направо: a → b → c
-        lualine_a = { "mode" },             -- NORMAL/INSERT/VISUAL и т.п.
-        lualine_b = {
-          { "branch", icon = "" },        -- git-ветка
+        lualine_a = {
           {
-            "diff",                          -- +добавлено / ~изменено / -удалено
-            symbols = { added = " ", modified = " ", removed = " " },
+            "mode",
+            fmt = function(str)
+              local abbreviations = {
+                ["NORMAL"]       = " NO",
+                ["INSERT"]       = " IN",
+                ["VISUAL"]       = "󰉂 VI",
+                ["V-LINE"]       = "󰉁 VL",
+                ["V-BLOCK"]      = "⬒ VB",
+                ["V-REPLACE"]    = "󱓳 VR",
+                ["REPLACE"]      = "󱓳 RE",
+                ["COMMAND"]      = " CO",
+                ["SHELL"]        = " SH",
+                ["SELECT"]       = "󰉃 SE",
+                ["S-LINE"]       = "󰉂 SL",
+                ["S-BLOCK"]      = "SB",
+                ["TERMINAL"]     = " TE",
+                ["OP-PENDING"]   = "󰅂 OP",
+              }
+              -- Если режим есть в таблице — вернуть сокращение, иначе первые две буквы заглавными
+              return abbreviations[str] or str:sub(1, 2):upper()
+            end,
           },
+        },
+        lualine_b = {
+          { "branch", icon = "" },
         },
         lualine_c = {
           {
-            "diagnostics",                   -- LSP-диагностики
-            symbols = {
-              error = " ",
-              warn  = " ",
-              info  = " ",
-              hint  = " ",
+            "buffers",
+            mode                    = 0,
+            show_filename_only      = true,
+            hide_filename_extension = false,
+            show_modified_status    = true,
+
+            -- ── Фильтр: только буферы текущего проекта ─────────────────
+            -- Запоминаем root активного буфера (папку с .git/go.mod) при
+            -- первом вызове и фильтруем все буферы по нему. Если открыл
+            -- файл из другого проекта — он не попадёт в полосу.
+            -- Фильтр: только буферы, чей путь начинается с текущей cwd.
+            -- cwd Neovim — стабильнее vim.fs.root, потому что не зависит
+            -- от наличия .git в домашней папке. + проверки buftype/buflisted
+            -- отсекают служебные буферы (neo-tree, terminal, mini.icons).
+            filter = function(bufnr)
+              if not vim.bo[bufnr].buflisted then return false end
+              if vim.bo[bufnr].buftype ~= "" then return false end
+
+              local bufname = vim.api.nvim_buf_get_name(bufnr)
+              if bufname == "" then return false end
+
+              local cwd = vim.fn.getcwd()
+              if not cwd:match("/$") then cwd = cwd .. "/" end
+
+              return vim.startswith(bufname, cwd)
+            end,
+            -- ── Спец-имена для всё-таки попавших buftype-буферов ─────
+            filetype_names = {
+              TelescopePrompt  = "Telescope",
+              snacks_dashboard = "Dashboard",
+              lazy             = "Lazy",
+              mason            = "Mason",
             },
-          },
-          {
-            "filename",
-            path = 1,                        -- 0=имя, 1=относительный путь, 2=абсолютный
+
+            max_length = function() return math.floor(vim.o.columns * 2 / 3) end,
+
             symbols = {
-              modified = "●",
-              readonly = "",
-              unnamed  = "[No Name]",
+              modified       = " ●",
+              alternate_file = "",
+              directory      = "",
+            },
+
+            -- ── Цвета: прозрачный фон, через named highlight-группы ──
+            buffers_color = {
+              active   = "LualineBufferActive",
+              inactive = "LualineBufferInactive",
             },
           },
         },
-        -- справа налево: x → y → z
-        lualine_x = {
-          "encoding",                        -- utf-8 и т.п.
-          {
-            "fileformat",                    -- unix / dos / mac
-            symbols = { unix = "", dos = "", mac = "" },
-          },
-          "filetype",
-        },
-        lualine_y = { "progress" },          -- 35% — прокрутка по файлу
-        lualine_z = { "location" },          -- 19:4 — строка:колонка
+        lualine_x = { },
+        lualine_y = { "progress" },
+        lualine_z = { "location" },
       },
     },
+    config = function(_, opts)
+      -- Устанавливаем тему lualine в зависимости от background, используя
+      -- встроенные темы kanagawa-paper (ink для dark, canvas для light).
+      local theme_name = vim.o.background == "light" and "kanagawa-paper-canvas" or "kanagawa-paper-ink"
+      local ok, theme = pcall(require, "lualine.themes." .. theme_name)
+      opts.options.theme = ok and theme or "auto"
+      require("lualine").setup(opts)
+    end,
   },
 }

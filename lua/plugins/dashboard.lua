@@ -7,66 +7,120 @@
 return {
   {
     "folke/snacks.nvim",
-    priority = 1000,             -- грузить рано, чтобы dashboard успел показаться
-    lazy = false,                -- dashboard нужен сразу при старте
+    priority = 1000,
+    lazy = false,
     opts = {
-      -- ----------------------------------------------------------------------
-      -- DASHBOARD
-      -- ----------------------------------------------------------------------
       dashboard = {
         enabled = true,
+
+        formats = {
+          icon = function(item)
+            if item.icon and item.icon:match("^%d+$") then
+              return { item.icon, width = 2, hl = "SnacksDashboardKey" }
+            end
+            return { item.icon, width = 2 }
+          end,
+          -- Формат для отображения клавиш (букв и цифр) без скобок
+          key = function(item)
+            return { item.key, width = 2, hl = "SnacksDashboardKey" }
+          end,
+        },
+
         preset = {
-          -- ASCII-логотип. Можно заменить на любой другой,
-          -- например через https://patorjk.com/software/taag/
           header = [[
 ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
 ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
 ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
 ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
-██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚╝ ██║
+██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚╝  ██║
 ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
           ]],
-
-          -- Действия — список пунктов меню. Каждый: иконка + надпись + клавиша + action.
-          -- Open File / Open Folder будут добавлены в Блоке 5 после telescope.
-          -- Restore Session — заглушка до Блока 14, когда подключим persistence.nvim.
           keys = {
             { icon = "", key = "n", desc = "New file", action = ":enew" },
             { icon = "", key = "r", desc = "Recent files", action = function() Snacks.dashboard.pick("oldfiles") end },
             {
-              icon = "", key = "s", desc = "Restore session",
+              icon = "",
+              key = "s",
+              desc = "Restore session",
               action = function()
-                vim.notify("persistence.nvim ещё не подключён (Блок 14)", vim.log.levels.WARN)
+                require("persistence").load({ last = true })
               end,
             },
+            { icon = "", key = "p", desc = "Projects", action = "<leader>fP" },
             { icon = "", key = "q", desc = "Quit", action = ":qa" },
           },
         },
 
-        -- Секции дашборда — сам layout. Из чего состоит экран.
         sections = {
           { section = "header" },
-          { section = "keys", gap = 1, padding = 1 },
-          {
-            pane = 1,
-            icon = " ",
-            title = "Recent Files",
-            section = "recent_files",
-            indent = 2,
-            padding = 1,
-            limit = 5,                  -- ровно 5 последних файлов, как договорились
+          { section = "keys", gap = 1, padding = 1, indent = 2 },
+
+                    {
+            function()
+              local pinned = require("util.pinned_projects").list()
+
+              local items = {
+                -- Заголовок "Projects" теперь с группой подсветки SnacksDashboardFooter, что делает его темнее
+              { icon = " ", title = { { "Projects", hl = "MyDashboardProjectsHeader" } }, padding = 0, indent = 4 }
+              }
+
+              if #pinned == 0 then
+                table.insert(items, {
+                  desc = "(empty - press <leader>fa to pin current cwd)",
+                  align = "center",
+                  padding = 1,
+                })
+                return items
+              end
+
+              local LIMIT = 6
+              local NAME_WIDTH = 18
+              local shown = math.min(LIMIT, #pinned)
+
+              for i = 1, shown do
+                local entry = pinned[i]
+                local path = entry.path
+                local home = vim.fn.expand("~")
+
+                if path == home then
+                  path = "~"
+                elseif vim.startswith(path, home .. "/") then
+                  path = "~" .. path:sub(#home + 1)
+                end
+
+                local name = entry.name
+                if #name > NAME_WIDTH - 1 then
+                  name = name:sub(1, NAME_WIDTH - 2) .. "..."
+                end
+
+                local padded_name = name .. string.rep(" ", NAME_WIDTH - vim.str_utfindex(name))
+                table.insert(items, {
+                  indent = 5,
+                  -- Название проекта теперь красится цветом, который был у пути (SnacksDashboardFooter)
+                  title = { padded_name, hl = "MyDashboardProjectName" },
+                  -- Путь к проекту теперь красится цветом по умолчанию (можно указать свой, например, "SnacksDashboardDesc")
+                  desc = { path, hl = "MyDashboardPath" },
+                  -- Цифра остаётся справа, под буквами n r s q
+                  key = tostring(i),
+                  padding = i == shown and 1 or 0,
+                })
+              end
+
+              return items
+            end,
           },
+
           {
             section = "startup",
             text = function()
               local stats = require("lazy").stats()
               local ms = math.floor(stats.startuptime * 100 + 0.5) / 100
               return {
-                { "⚡ ",                                                   hl = "SnacksDashboardSpecial" },
-                { "Neovim loaded ",                                        hl = "SnacksDashboardFooter"  },
-                { tostring(stats.loaded) .. "/" .. tostring(stats.count), hl = "DashboardFooterCount"   },
-                { " plugins in ",                                          hl = "SnacksDashboardFooter"  },
-                { tostring(ms) .. "ms",                                    hl = "DashboardFooterTime"    },
+                { "⬡ ", hl = "SnacksDashboardSpecial" },
+                { "Neovim loaded ", hl = "SnacksDashboardFooter" },
+                { tostring(stats.loaded) .. "/" .. tostring(stats.count), hl = "DashboardFooterCount" },
+                { " plugins in ", hl = "SnacksDashboardFooter" },
+                { tostring(ms) .. "ms", hl = "DashboardFooterTime" },
               }
             end,
             align = "center",
@@ -74,88 +128,68 @@ return {
         },
       },
 
-      -- ----------------------------------------------------------------------
-      -- NOTIFIER
-      -- ----------------------------------------------------------------------
       notifier = {
         enabled = true,
-        timeout = 3000,                 -- через сколько мс уведомление само исчезнет
-        style = "compact",              -- варианты: "compact" / "fancy" / "minimal"
-        top_down = true,                -- новые уведомления сверху вниз
+        timeout = 3000,
+        style = "compact",
+        top_down = true,
         date_format = "%R",
       },
 
-      -- остальные модули snacks отключены — включим в нужных блоках
+      input = { enabled = true },
+      quickfile = { enabled = true },
+      scroll = { enabled = true },
       bigfile = { enabled = false },
-      indent  = { enabled = false },    -- у нас уже есть indent-blankline
-      input   = { enabled = false },
-      picker  = { enabled = false },    -- у нас будет telescope в Блоке 5
-      quickfile = { enabled = false },
-      scroll  = { enabled = false },
+      indent = { enabled = false },
+      picker = { enabled = false },
       statuscolumn = { enabled = false },
-      words   = { enabled = false },
+      words = { enabled = false },
     },
 
     keys = {
-      -- Принудительно открыть дашборд из любого места
       { "<leader>fd", function() Snacks.dashboard() end, desc = "Open dashboard" },
-      -- История уведомлений
       { "<leader>fn", function() Snacks.notifier.show_history() end, desc = "Notification history" },
     },
 
-    -- ------------------------------------------------------------------------
-    -- Единый цвет дашборда: Fuji (приглушённый светло-серый kanagawa).
-    -- Акцент сохраняется только на буквах-клавишах (n, r, s, q, 1-5).
-    -- ------------------------------------------------------------------------
     config = function(_, opts)
+      vim.api.nvim_set_hl(0, "MyDashboardPath", { fg = "#727169", italic = true })
+      vim.api.nvim_set_hl(0, "MyDashboardProjectsHeader", { fg = "#9C9CAB" })
+      vim.api.nvim_set_hl(0, "MyDashboardProjectName", { fg = "#c4b28a", bold = true })
       require("snacks").setup(opts)
 
-      local function set_dashboard_hl()
-        local fuji         = "#DCD7BA"  -- основной текст kanagawa
-        local fuji_dim     = "#727169"  -- приглушённый
-        local sakura_pink  = "#D27E99"  -- розовый — для клавиш меню
-        local crystal_blue = "#7E9CD8"  -- синий — для чисел плагинов
-        local wave_aqua    = "#7AA89F"  -- бирюзовый — для времени
-        local autumn_gold  = "#FFA066"  -- оранжевый — для иконки молнии
-
-        vim.api.nvim_set_hl(0, "DashboardFooterCount", { fg = crystal_blue, bold = true })
-        vim.api.nvim_set_hl(0, "DashboardFooterTime",  { fg = wave_aqua })
-
-        -- Меню (n / r / s / q + описания)
-        vim.api.nvim_set_hl(0, "SnacksDashboardHeader", { fg = fuji,        bold = true })
-        vim.api.nvim_set_hl(0, "SnacksDashboardIcon",   { fg = fuji })
-        vim.api.nvim_set_hl(0, "SnacksDashboardDesc",   { fg = fuji })
-        vim.api.nvim_set_hl(0, "SnacksDashboardKey",    { fg = sakura_pink, bold = true })
-        vim.api.nvim_set_hl(0, "SnacksDashboardTitle",  { fg = fuji_dim,    bold = true })
-        vim.api.nvim_set_hl(0, "SnacksDashboardFile",   { fg = fuji })
-        vim.api.nvim_set_hl(0, "SnacksDashboardDir",    { fg = fuji_dim })
-        vim.api.nvim_set_hl(0, "SnacksDashboardFooter", { fg = fuji_dim,    italic = true })
-
-        -- Footer-сегменты (используются в кастомном startup-text)
-        vim.api.nvim_set_hl(0, "SnacksDashboardSpecial", { fg = autumn_gold })
+      local function cursor_blend(value)
+        local hl = vim.api.nvim_get_hl(0, { name = "Cursor", create = true })
+        hl.blend = value
+        vim.api.nvim_set_hl(0, "Cursor", hl)
+        vim.cmd("set guicursor+=a:Cursor/lCursor")
       end
 
-      set_dashboard_hl()
-      vim.api.nvim_create_autocmd("ColorScheme", { callback = set_dashboard_hl })
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "SnacksDashboardOpened",
+        callback = function(event)
+          cursor_blend(100)
 
-      -- Скрыть курсор на дашборде
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "snacks_dashboard",
-        callback = function()
-          -- Прячем курсор полностью на дашборде
-          vim.opt.guicursor:append("a:noCursor")
-          vim.opt_local.cursorline = false
+          local pinned = require("util.pinned_projects").list()
+          for i = 1, math.min(9, #pinned) do
+            local entry = pinned[i]
+            vim.keymap.set("n", tostring(i), function()
+              local dash_buf = vim.api.nvim_get_current_buf()
+              vim.cmd("bdelete " .. dash_buf)
+              vim.cmd("cd " .. vim.fn.fnameescape(entry.path))
+              vim.notify("Открыт проект: " .. entry.name, vim.log.levels.INFO)
+            end, {
+              buffer = event.buf,
+              desc = "Open pinned project " .. i,
+              nowait = true,
+            })
+          end
         end,
       })
 
-      -- Восстановить курсор при выходе с дашборда
-      -- Прячем курсор пока активен буфер дашборда
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-        callback = function(args)
-          if vim.bo[args.buf].filetype == "snacks_dashboard" then
-            vim.opt.guicursor:append("a:noCursor")
-          else
-            vim.opt.guicursor:remove("a:noCursor")
+      vim.api.nvim_create_autocmd("BufLeave", {
+        callback = function()
+          if vim.bo.filetype == "snacks_dashboard" then
+            cursor_blend(0)
           end
         end,
       })
