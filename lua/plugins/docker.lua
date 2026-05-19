@@ -1,16 +1,9 @@
--- ~/.config/nvim/lua/plugins/docker.lua
--- Блок 10 — Docker workflow.
 -- lazydocker через Snacks.terminal — TUI для управления Docker
 -- (контейнеры, образы, тома, сети, логи, статистика) прямо из Neovim.
 --
 -- TUI = text user interface, полноэкранный интерфейс в терминале
 -- (управление стрелками/клавишами, без мыши). В VS Code ближайший
 -- аналог — расширение Docker с панелью контейнеров в сайдбаре.
---
--- Схема — копия спеки lazygit из git.lua (Шаг 2 Блока 9):
--- расширяем уже существующую спеку snacks.nvim только полем keys,
--- config-функцию snacks НЕ дублируем — она живёт в dashboard.lua,
--- lazy.nvim сливает поля одноимённых спек.
 --
 -- Раскладка:
 --   <leader>D — открыть/показать lazygit-… то есть lazydocker
@@ -59,13 +52,13 @@ return {
                   "<c-q>",
                   function(self) self:hide() end,
                   mode = { "n", "t" },
-                  desc = "Скрыть lazydocker (вернуть: <leader>D)",
+                  desc = "Docker: hide lazydocker (reopen: <leader>D)",
                 },
               },
             },
           })
         end,
-        desc = "lazydocker",
+        desc = "Docker: lazydocker",
       },
     },
   },

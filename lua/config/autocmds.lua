@@ -1,14 +1,6 @@
 -- ============================================================================
 -- lua/config/autocmds.lua
 -- Автокоманды — реакции на события Neovim.
---
--- Шпаргалка:
---   vim.api.nvim_create_autocmd(events, opts)
---     events — строка или список событий ("BufWritePre", {"BufRead", ...}).
---     opts.pattern — фильтр по имени файла или filetype ("*.go", "yaml").
---     opts.callback — Lua-функция, выполняемая при событии.
---     opts.command — альтернатива callback: команда Vim в виде строки.
---     opts.group — группа автокоманд (важно для идемпотентности при reload).
 -- ============================================================================
 
 local autocmd = vim.api.nvim_create_autocmd
@@ -25,7 +17,6 @@ local group = augroup("user_autocmds", { clear = true })
 -- ──────────────────────────────────────────────────────────────────────
 -- Когда копируешь yy/y — на 200мс подсвечивается то, что взято в
 -- регистр. Видно, что именно скопировал, без угадывания.
--- В VS Code похоже на короткую вспышку выделения после Ctrl+C.
 autocmd("TextYankPost", {
   group = group,
   desc = "Highlight yanked text",
@@ -38,9 +29,7 @@ autocmd("TextYankPost", {
 -- Восстановление позиции курсора при открытии файла
 -- ──────────────────────────────────────────────────────────────────────
 -- Когда снова открываешь файл, который уже редактировал, курсор
--- ставится туда, где ты его оставил в прошлый раз. Очень удобно.
--- Исключения: коммит-сообщения git и xxd-дампы — там старая позиция
--- бессмысленна.
+-- ставится туда, где ты его оставил в прошлый раз.
 autocmd("BufReadPost", {
   group = group,
   desc = "Restore last cursor position",
@@ -104,11 +93,6 @@ autocmd("FileType", {
 -- ──────────────────────────────────────────────────────────────────────
 -- Удаление пробелов в конце строк при сохранении
 -- ──────────────────────────────────────────────────────────────────────
--- Перед записью файла на диск Neovim прогоняет команду :%s — она
--- находит все пробелы в конце строк и удаляет их. Чисто косметика,
--- но git-diff'ы чище.
--- Исключаем markdown — там два пробела в конце строки означают
--- перенос строки, это синтаксис языка.
 autocmd("BufWritePre", {
   group = group,
   desc = "Trim trailing whitespace on save",
@@ -147,21 +131,21 @@ autocmd("BufWritePre", {
 -- ──────────────────────────────────────────────────────────────────────
 -- Автоматическое выравнивание сплитов при изменении размера окна
 -- ──────────────────────────────────────────────────────────────────────
--- Когда меняешь размер kitty/терминала — открытые сплиты по умолчанию
--- остаются с прежними пропорциями, и часть их может уехать за экран.
--- Эта команда говорит "перерасчитай всё равномерно".
 autocmd("VimResized", {
   group = group,
   desc = "Equalize splits on terminal resize",
-  command = "tabdo wincmd =",
+  callback = function()
+    local dap = package.loaded["dap"]
+    if dap and dap.session() then
+      return
+    end
+    vim.cmd("tabdo wincmd =")
+  end,
 })
 
 -- ──────────────────────────────────────────────────────────────────────
 -- Автоматический вход в Insert-режим при открытии терминала
 -- ──────────────────────────────────────────────────────────────────────
--- Когда открываешь :terminal или плагин-терминал, курсор по умолчанию
--- появляется в Normal-режиме (надо жать i). Делаем сразу Insert.
--- Также убираем номера строк и signcolumn — в терминале они мешают.
 autocmd("TermOpen", {
   group = group,
   desc = "Tweak terminal buffers",
@@ -198,15 +182,25 @@ autocmd("FileType", {
   end,
 })
 
+-- ──────────────────────────────────────────────────────────────────────
 -- Авто-открытие/обновление neo-tree при смене корня проекта
+-- ──────────────────────────────────────────────────────────────────────
 vim.api.nvim_create_autocmd("BufReadPost", {
   group = vim.api.nvim_create_augroup("auto_open_neotree", { clear = true }),
   callback = function(args)
     local buftype = vim.bo[args.buf].buftype
     if buftype ~= "" then return end
+    local ft = vim.bo[args.buf].filetype
+    if ft == "dbout" or ft == "dbui" or ft == "dbui-drawer" then
+      return
+    end
 
     local bufname = vim.api.nvim_buf_get_name(args.buf)
     if bufname == "" or vim.fn.filereadable(bufname) ~= 1 then return end
+    local cwd = vim.fn.getcwd()
+    if not vim.startswith(vim.fs.normalize(bufname), vim.fs.normalize(cwd) .. "/") then
+      return
+    end
 
     local root = vim.fs.root(bufname, {
       ".git", "go.mod", "package.json", "Cargo.toml", "pyproject.toml", "Makefile",

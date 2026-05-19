@@ -12,10 +12,6 @@ return {
   -- ними, регексп-преобразования). friendly-snippets — большая
   -- библиотека готовых сниппетов для десятков языков в формате
   -- VS Code (Go, Lua, YAML, Dockerfile, JSON, SQL, Markdown и т.д.).
-  --
-  -- Загружается lazy.nvim как dependency blink.cmp ниже — отдельный
-  -- триггер не нужен, она просто оказывается в runtimepath раньше,
-  -- чем blink.cmp вызовет setup().
   {
     "L3MON4D3/LuaSnip",
     -- Прибиваемся к мажорной версии 2.x — API устоявшийся, но
@@ -117,11 +113,6 @@ return {
       --     ( и , (тонкий серый "▸ <param>" рядом с курсором).
       --   • Полный popup в стиле blink.cmp — только по <C-k>, когда
       --     реально нужна полная сигнатура + docstring.
-      --
-      -- TODO-14-Sig: рассмотреть переход на Вариант A — отключить
-      -- lsp_signature.nvim и включить авто-триггер у blink.cmp
-      -- (show_on_trigger_character + show_on_insert_on_trigger_character
-      -- = true). Решение принимать после реального опыта работы.
       signature = {
         enabled = true,
         trigger = {

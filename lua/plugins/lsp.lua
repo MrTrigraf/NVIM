@@ -128,6 +128,14 @@ return {
           local bufnr = ev.buf
           local client = vim.lsp.get_client_by_id(ev.data.client_id)
           if not client then return end
+          local bufname = vim.api.nvim_buf_get_name(bufnr)
+          local scheme = bufname:match("^(%w[%w+.-]*)://")
+          if vim.bo[bufnr].buftype ~= "" or (scheme and scheme ~= "file") then
+            vim.schedule(function()
+              pcall(vim.lsp.buf_detach_client, bufnr, client.id)
+            end)
+            return
+          end
 
           local function map(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
