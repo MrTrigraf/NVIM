@@ -19,47 +19,47 @@ return {
     {
       "<leader>tt",
       function() require("neotest").run.run() end,
-      desc = "Тест под курсором",
+      desc = "Test: nearest (under cursor)",
     },
     {
       "<leader>tf",
       function() require("neotest").run.run(vim.fn.expand("%")) end,
-      desc = "Тесты текущего файла",
+      desc = "Test: current file",
     },
     {
       "<leader>ta",
       function() require("neotest").run.run(vim.fn.getcwd()) end,
-      desc = "Все тесты проекта",
+      desc = "Test: whole project",
     },
     {
       "<leader>td",
       function() require("neotest").run.run({ strategy = "dap" }) end,
-      desc = "Тест под курсором в debug-режиме",
+      desc = "Test: nearest in debug mode",
     },
     {
       "<leader>tl",
       function() require("neotest").run.run_last() end,
-      desc = "Перезапустить последний тест",
+      desc = "Test: rerun last",
     },
     {
       "<leader>ts",
       function() require("neotest").run.stop() end,
-      desc = "Остановить тест",
+      desc = "Test: stop",
     },
     {
       "<leader>to",
       function() require("neotest").output.open({ enter = true }) end,
-      desc = "Вывод теста (output)",
+      desc = "Test: output",
     },
     {
       "<leader>tp",
       function() require("neotest").summary.toggle() end,
-      desc = "Панель со списком тестов (summary)",
+      desc = "Test: summary panel",
     },
     {
       "<leader>tw",
       function() require("neotest").watch.toggle(vim.fn.expand("%")) end,
-      desc = "Watch-режим для файла",
+      desc = "Test: watch mode for file",
     },
   },
 

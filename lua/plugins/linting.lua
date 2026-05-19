@@ -68,7 +68,7 @@ return {
     -- ────────────────────────────────────────────────────────────────
     vim.keymap.set("n", "<leader>ll", function()
       lint.try_lint()
-    end, { desc = "Lint: запустить линтинг текущего файла" })
+    end, { desc = "Lint: lint current file" })
 
     -- ────────────────────────────────────────────────────────────────
     -- :LintInfo — показать, какие линтеры назначены этому буферу.
@@ -80,15 +80,15 @@ return {
       local linters = lint.linters_by_ft[ft]
       if linters and #linters > 0 then
         vim.notify(
-          "Линтеры для '" .. ft .. "': " .. table.concat(linters, ", "),
+          "Linters for '" .. ft .. "': " .. table.concat(linters, ", "),
           vim.log.levels.INFO
         )
       else
         vim.notify(
-          "Для filetype '" .. ft .. "' линтеры не настроены",
+          "No linters configured for filetype '" .. ft .. "'",
           vim.log.levels.WARN
         )
       end
-    end, { desc = "Показать линтеры для текущего filetype" })
+    end, { desc = "Lint: show linters for current filetype" })
   end,
 }

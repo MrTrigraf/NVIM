@@ -1,5 +1,5 @@
 -- ~/.config/nvim/lua/plugins/git.lua
--- Блок 9 — Git workflow.
+-- Git workflow.
 -- Шаг 1: gitsigns.nvim — знаки изменений в gutter, навигация по hunk'ам,
 --        stage/reset/preview hunk, inline-blame текущей строки.
 -- Шаг 2: lazygit (Snacks.terminal) + telescope git_status picker
@@ -92,32 +92,32 @@ return {
         end
 
         -- Навигация по hunk'ам. ]X / [X — vim-конвенция "следующий/предыдущий".
-        map("n", "]h", function() gs.nav_hunk("next") end, "Следующий hunk")
-        map("n", "[h", function() gs.nav_hunk("prev") end, "Предыдущий hunk")
+        map("n", "]h", function() gs.nav_hunk("next") end, "Git: next hunk")
+        map("n", "[h", function() gs.nav_hunk("prev") end, "Git: previous hunk")
 
         -- Операции с hunk'ами под префиксом <leader>gh* (h = hunk).
-        map("n", "<leader>ghp", gs.preview_hunk,    "Превью hunk'а")
-        map("n", "<leader>ghs", gs.stage_hunk,      "Stage hunk")
-        map("n", "<leader>ghr", gs.reset_hunk,      "Reset hunk (откатить изменение)")
-        map("n", "<leader>ghu", gs.undo_stage_hunk, "Undo stage hunk")
-        map("n", "<leader>ghS", gs.stage_buffer,    "Stage всего буфера")
-        map("n", "<leader>ghR", gs.reset_buffer,    "Reset всего буфера")
-        map("n", "<leader>ghd", gs.diffthis,        "Diff против индекса")
-        map("n", "<leader>ghD", function() gs.diffthis("~") end, "Diff против HEAD~")
+        map("n", "<leader>ghp", gs.preview_hunk,    "Hunk: preview")
+        map("n", "<leader>ghs", gs.stage_hunk,      "Hunk: stage")
+        map("n", "<leader>ghr", gs.reset_hunk,      "Hunk: reset (discard change)")
+        map("n", "<leader>ghu", gs.undo_stage_hunk, "Hunk: undo stage")
+        map("n", "<leader>ghS", gs.stage_buffer,    "Hunk: stage whole buffer")
+        map("n", "<leader>ghR", gs.reset_buffer,    "Hunk: reset whole buffer")
+        map("n", "<leader>ghd", gs.diffthis,        "Hunk: diff against index")
+        map("n", "<leader>ghD", function() gs.diffthis("~") end, "Hunk: diff against HEAD~")
         map("n", "<leader>ghb", function() gs.blame_line({ full = true }) end,
-          "Полный blame строки (popup)")
+          "Hunk: full line blame (popup)")
 
         -- Visual-режим: stage/reset для конкретно выделенных строк
         -- (а не всего hunk'а целиком).
         map("v", "<leader>ghs", function()
           gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
-        end, "Stage выделения")
+        end, "Hunk: stage selection")
         map("v", "<leader>ghr", function()
           gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-        end, "Reset выделения")
+        end, "Hunk: reset selection")
 
         -- Тоггл inline-blame у текущей строки.
-        map("n", "<leader>gb", gs.toggle_current_line_blame, "Toggle inline blame")
+        map("n", "<leader>gb", gs.toggle_current_line_blame, "Git: toggle inline blame")
 
         -- Text object "ih" = inner hunk. Работает с операторами:
         -- vih — выделить hunk visual'ом, dih — удалить hunk, cih — изменить.
@@ -184,13 +184,13 @@ return {
                   "<c-q>",
                   function(self) self:hide() end,
                   mode = { "n", "t" },
-                  desc = "Скрыть lazygit (вернуть: <leader>gg)",
+                  desc = "Git: hide lazygit (reopen: <leader>gg)",
                 },
               },
             },
           })
         end,
-        desc = "lazygit",
+        desc = "Git: lazygit",
       },
     },
   },
@@ -206,7 +206,7 @@ return {
       {
         "<leader>gs",
         function() require("telescope.builtin").git_status() end,
-        desc = "Git status (picker изменённых файлов)",
+        desc = "Git: status (changed files picker)",
       },
     },
   },
@@ -228,10 +228,10 @@ return {
       "DiffviewRefresh",
     },
     keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>",          desc = "Diffview: открыть" },
-      { "<leader>gD", "<cmd>DiffviewClose<cr>",         desc = "Diffview: закрыть" },
-      { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "История текущего файла" },
-      { "<leader>gF", "<cmd>DiffviewFileHistory<cr>",   desc = "История всего репо" },
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>",          desc = "Diffview: open" },
+      { "<leader>gD", "<cmd>DiffviewClose<cr>",         desc = "Diffview: close" },
+      { "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview: current file history" },
+      { "<leader>gF", "<cmd>DiffviewFileHistory<cr>",   desc = "Diffview: whole repo history" },
     },
     opts = {
       enhanced_diff_hl = true, -- более контрастная подсветка diff'а
@@ -251,13 +251,13 @@ return {
       -- остаются нетронутыми — мы не передаём disable_defaults.
       keymaps = {
         view = {
-          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Закрыть diffview" } },
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Diffview: close" } },
         },
         file_panel = {
-          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Закрыть diffview" } },
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Diffview: close" } },
         },
         file_history_panel = {
-          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Закрыть diffview" } },
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Diffview: close" } },
         },
       },
     },

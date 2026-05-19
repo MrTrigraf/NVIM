@@ -53,7 +53,7 @@ return {
               end,
               mode = "t",
               expr = true,
-              desc = "Двойной <Esc> -> normal-режим",
+              desc = "Terminal: double <Esc> -> normal mode",
             },
           },
         },
@@ -87,7 +87,7 @@ return {
           })
         end,
         mode = { "n", "t", "i" },
-        desc = "Терминал: term-shell (низ, команды)",
+        desc = "Terminal: term-shell (bottom, commands)",
       },
       -- Дубликат на <C-_>: некоторые терминалы (в т.ч. часть конфигураций
       -- kitty) присылают <C-/> как код <C-_>. Вешаем оба, чтобы биндинг
@@ -104,7 +104,7 @@ return {
           })
         end,
         mode = { "n", "t", "i" },
-        desc = "Терминал: term-shell (низ, алиас <C-/>)",
+        desc = "Terminal: term-shell (bottom, alias of <C-/>)",
       },
 
       -- ----------------------------------------------------------------
@@ -137,7 +137,7 @@ return {
           })
         end,
         mode = { "n", "t" },
-        desc = "Терминал: плавающий (toggle)",
+        desc = "Terminal: floating (toggle)",
       },
 
       -- term-run — горизонтальный сплит снизу.
@@ -155,7 +155,7 @@ return {
           })
         end,
         mode = { "n", "t" },
-        desc = "Терминал: term-run (низ, go run сервера)",
+        desc = "Terminal: term-run (bottom, server go run)",
       },
 
       -- term-watch — вертикальный сплит сбоку.
@@ -173,7 +173,7 @@ return {
           })
         end,
         mode = { "n", "t" },
-        desc = "Терминал: term-watch (бок, air/watch)",
+        desc = "Terminal: term-watch (side, air/watch)",
       },
 
       -- term-watch + автозапуск air (hot-reload).
@@ -203,7 +203,7 @@ return {
           end
         end,
         mode = { "n", "t" },
-        desc = "Терминал: term-watch + запуск air",
+        desc = "Terminal: term-watch + start air",
       },
     },
   },

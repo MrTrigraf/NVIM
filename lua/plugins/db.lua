@@ -19,11 +19,11 @@ return {
     },
 
     keys = {
-      { "<leader>Bb", "<cmd>DBUIToggle<CR>",        desc = "DB: панель (drawer)" },
-      { "<leader>Bf", "<cmd>DBUIFindBuffer<CR>",    desc = "DB: найти query-буфер" },
-      { "<leader>Br", "<cmd>DBUIRenameBuffer<CR>",  desc = "DB: переименовать буфер" },
-      { "<leader>Bq", "<cmd>DBUILastQueryInfo<CR>", desc = "DB: инфо о последнем запросе" },
-      { "<leader>Ba", "<cmd>DBUIAddConnection<CR>", desc = "DB: добавить подключение" },
+      { "<leader>Bb", "<cmd>DBUIToggle<CR>",        desc = "DB: drawer panel" },
+      { "<leader>Bf", "<cmd>DBUIFindBuffer<CR>",    desc = "DB: find query buffer" },
+      { "<leader>Br", "<cmd>DBUIRenameBuffer<CR>",  desc = "DB: rename buffer" },
+      { "<leader>Bq", "<cmd>DBUILastQueryInfo<CR>", desc = "DB: last query info" },
+      { "<leader>Ba", "<cmd>DBUIAddConnection<CR>", desc = "DB: add connection" },
     },
 
     init = function()

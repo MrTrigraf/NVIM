@@ -41,6 +41,7 @@ return {
       -- отключаем встроенные подсказки для базовых vim-команд (z, g, ', `, " и т.п.) —
       -- они забивают экран. Свои <leader>-биндинги по-прежнему показываются.
       spec = {
+        { "<leader>B", group = "database" },
         { "<leader>b", group = "buffer" },
         { "<leader>c", group = "code" },
         { "<leader>d", group = "debug" },
@@ -49,10 +50,13 @@ return {
         { "<leader>h", group = "harpoon" },
         { "<leader>l", group = "lsp" },
         { "<leader>o", group = "outline" },
+        { "<leader>q", group = "quit/session" },
         { "<leader>s", group = "search/replace" },
+        { "<leader>T", group = "terminal" },
         { "<leader>t", group = "tests" },
         { "<leader>x", group = "diagnostics" },
       },
+
 
       win = {
         no_overlap = true,  -- не перекрывает курсор

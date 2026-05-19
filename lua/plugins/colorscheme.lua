@@ -51,6 +51,7 @@ return {
           StatusLine   = { bg = "none" },
           StatusLineNC = { bg = "none" },
           EndOfBuffer  = { bg = "none" },
+          CursorLine = { bg = palette.sumiInk5 },
 
           -- Floating-окна — сохраняем привычный вид
           NormalFloat = { bg = "none", fg = theme.ui.fg },

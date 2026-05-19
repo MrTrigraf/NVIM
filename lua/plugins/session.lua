@@ -24,22 +24,22 @@ return {
     {
       "<leader>qs",
       function() require("persistence").load() end,
-      desc = "Сессия: восстановить для этого проекта",
+      desc = "Session: restore for this project",
     },
     {
       "<leader>qS",
       function() require("persistence").select() end,
-      desc = "Сессия: выбрать из списка",
+      desc = "Session: pick from list",
     },
     {
       "<leader>ql",
       function() require("persistence").load({ last = true }) end,
-      desc = "Сессия: восстановить последнюю",
+      desc = "Session: restore last",
     },
     {
       "<leader>qd",
       function() require("persistence").stop() end,
-      desc = "Сессия: не сохранять текущую при выходе",
+      desc = "Session: don't save current on exit",
     },
   },
 }

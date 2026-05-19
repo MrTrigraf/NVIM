@@ -84,15 +84,15 @@ return {
       if args.bang then
         -- bang (!) — только текущий буфер.
         vim.b.disable_autoformat = not vim.b.disable_autoformat
-        local state = vim.b.disable_autoformat and "ВЫКЛ" or "ВКЛ"
-        vim.notify("Format-on-save для буфера: " .. state, vim.log.levels.INFO)
+        local state = vim.b.disable_autoformat and "OFF" or "ON"
+        vim.notify("Format-on-save for buffer: " .. state, vim.log.levels.INFO)
       else
         vim.g.disable_autoformat = not vim.g.disable_autoformat
-        local state = vim.g.disable_autoformat and "ВЫКЛ" or "ВКЛ"
-        vim.notify("Format-on-save глобально: " .. state, vim.log.levels.INFO)
+        local state = vim.g.disable_autoformat and "OFF" or "ON"
+        vim.notify("Format-on-save globally: " .. state, vim.log.levels.INFO)
       end
     end, {
-      desc = "Toggle format-on-save (! = только текущий буфер)",
+      desc = "Toggle format-on-save (! = current buffer only)",
       bang = true,
     })
   end,
