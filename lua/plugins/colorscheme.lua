@@ -52,6 +52,8 @@ return {
           StatusLineNC = { bg = "none" },
           EndOfBuffer  = { bg = "none" },
           CursorLine = { bg = palette.sumiInk5 },
+          Cursor     = { fg = theme.ui.bg, bg = theme.ui.fg },
+          lCursor    = { fg = theme.ui.bg, bg = theme.ui.fg },
 
           -- Floating-окна — сохраняем привычный вид
           NormalFloat = { bg = "none", fg = theme.ui.fg },
@@ -77,6 +79,21 @@ return {
           TelescopePreviewTitle   = { bg = "none", fg = palette.oniViolet, bold = true },    -- фиолет
           TelescopeTitle          = { bg = "none", fg = theme.syn.special1, bold = true },
           
+          -- render-markdown.nvim: цвета заголовков H1..H6.
+          RenderMarkdownH1Bg = { bg = palette.waveBlue1 },
+          RenderMarkdownH2Bg = { bg = palette.winterYellow },
+          RenderMarkdownH3Bg = { bg = palette.winterGreen },
+          RenderMarkdownH4Bg = { bg = palette.winterRed },
+          RenderMarkdownH5Bg = { bg = palette.waveBlue1 },
+          RenderMarkdownH6Bg = { bg = palette.sumiInk5 },
+
+          RenderMarkdownH1   = { fg = theme.syn.fun,       bold = true },
+          RenderMarkdownH2   = { fg = theme.syn.special1,  bold = true },
+          RenderMarkdownH3   = { fg = palette.springGreen, bold = true },
+          RenderMarkdownH4   = { fg = palette.oniViolet,   bold = true },
+          RenderMarkdownH5   = { fg = palette.crystalBlue, bold = true },
+          RenderMarkdownH6   = { fg = theme.ui.fg_dim,     bold = true },
+
           -- Neo-tree: кастомные цвета папок (из палитры, без жёстких hex)
           NeoTreeDirectoryIcon  = { fg = palette.boatYellow2 },
           NeoTreeDirectoryName  = { fg = theme.ui.fg },
