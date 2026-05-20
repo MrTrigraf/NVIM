@@ -227,6 +227,23 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
+-- ──────────────────────────────────────────────────────────────────────
+-- Восстановление видимости курсора после restore сессии
+-- ──────────────────────────────────────────────────────────────────────
+-- snacks.dashboard ставит Cursor blend=100 (прячет курсор на ASCII-арте).
+-- При выборе файла из меню снакс возвращает курсор сам. А при `s` управление
+-- перехватывает persistence.nvim, cleanup снакса не отрабатывает,
+-- курсор остаётся прозрачным. Форсируем blend=0 после события restore.
+autocmd("User", {
+  group = group,
+  pattern = "PersistenceLoadPost",
+  desc = "Restore Cursor highlight after session load",
+  callback = function()
+    vim.api.nvim_set_hl(0, "Cursor",  { blend = 0 })
+    vim.api.nvim_set_hl(0, "lCursor", { blend = 0 })
+  end,
+})
+
 -- Workspace-связанные autocmd живут отдельным модулем.
 require("util.workspace_autocmds")
 require("util.workspace_commands")
