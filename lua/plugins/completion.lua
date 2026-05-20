@@ -16,6 +16,7 @@ return {
     "L3MON4D3/LuaSnip",
     -- Прибиваемся к мажорной версии 2.x — API устоявшийся, но
     -- внутри 2.* возможны фиксы и небольшие фичи.
+    build = "make install_jsregexp",
     version = "v2.*",
     dependencies = { "rafamadriz/friendly-snippets" },
     config = function()

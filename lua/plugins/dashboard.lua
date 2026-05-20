@@ -93,7 +93,7 @@ return {
                   name = name:sub(1, NAME_WIDTH - 2) .. "..."
                 end
 
-                local padded_name = name .. string.rep(" ", NAME_WIDTH - vim.str_utfindex(name))
+                local padded_name = name .. string.rep(" ", NAME_WIDTH - vim.str_utfindex(name, "utf-32"))
                 table.insert(items, {
                   indent = 5,
                   -- Название проекта теперь красится цветом, который был у пути (SnacksDashboardFooter)
