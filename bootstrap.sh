@@ -167,13 +167,16 @@ fi
 step "Step 6/6: Install plugins (Lazy) and LSP servers (Mason)"
 
 info "Running Lazy sync — this will download all plugins (~30-60 sec)."
-# +Lazy! sync — синхронизация плагинов (! = принудительно, не спрашивая).
-# +qa — quit all после завершения.
-nvim --headless "+Lazy! sync" +qa
+# Используем Lua-API напрямую с wait=true — это блокирует Neovim
+# до полного завершения установки. Просто "+Lazy! sync +qa" не годится:
+# Lazy ставит плагины асинхронно, и при +qa процесс может оборваться
+# до того, как mason-tool-installer успеет зарегистрировать свои команды.
+nvim --headless +"lua require('lazy').sync({ wait = true, show = false })" +qa
 
 info "Running Mason — installing LSP servers, linters, formatters (~1-2 min)."
 # MasonToolsInstallSync — команда от mason-tool-installer, ставит ВСЁ
 # из ensure_installed в нашем lsp.lua, синхронно (ждёт завершения).
+# Теперь команда гарантированно зарегистрирована (см. выше).
 nvim --headless "+MasonToolsInstallSync" +qa
 
 # -----------------------------------------------------------------------------
