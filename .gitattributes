@@ -1,0 +1,43 @@
+# =============================================================================
+# .gitattributes — нормализация line endings и определение бинарных файлов.
+#
+# Зачем:
+#   1. Гарантировать LF (Unix) во всех текстовых файлах независимо от ОС
+#      разработчика. CRLF (Windows) ломает shebang shell-скриптов и портит
+#      diff в lazygit/GitHub.
+#   2. Явно пометить бинарные файлы, чтобы git их не пытался нормализовать.
+# =============================================================================
+
+# Default: все текстовые файлы — LF.
+# text=auto — git сам определяет text vs binary эвристически.
+# eol=lf — при checkout записывать с LF, при commit нормализовать в LF.
+* text=auto eol=lf
+
+# Shell scripts — критично LF (CRLF ломает `#!/usr/bin/env bash`).
+*.sh        text eol=lf
+
+# Основные языки и форматы конфига проекта.
+*.lua       text eol=lf
+*.go        text eol=lf
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.toml      text eol=lf
+*.http      text eol=lf
+*.rest      text eol=lf
+*.sql       text eol=lf
+*.conf      text eol=lf
+
+# Бинарные файлы — не трогать.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.svg       binary
+*.pdf       binary
+*.zip       binary
+*.tar.gz    binary
+*.tgz       binary
