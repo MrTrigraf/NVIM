@@ -43,12 +43,8 @@ return {
         },
       },
     },
-    config = function(_, opts)
-      require("ibl").setup(opts)
-      -- IblScope ссылается на эту highlight-группу — задаём цвет явно,
-      -- чтобы scope-линия (вертикальная палочка текущего блока) была видна
-      --vim.api.nvim_set_hl(0, "IblScope", { fg = "#7aa2f7" })
-    end,
+    -- config не нужен: setup вызовет lazy.nvim сам через `main = "ibl"`.
+    -- IblScope highlight задаётся в colorscheme.lua.
   },
 
   -- ==========================================================================
@@ -74,16 +70,8 @@ return {
         before        = "",                  -- пустая плашка перед tag
         keyword       = "fg",                -- цвет текста tag, без плашки
         after         = "fg",                -- текст после tag тоже окрашен
-        pattern       = [[.*<(KEYWORDS)\s*:]],
+        pattern       = [[.*(KEYWORDS)\s*:]],
         comments_only = true,                -- подсвечивать только в комментариях
-      },
-      colors = {
-        error   = { "DiagnosticError", "ErrorMsg",   "#DC2626" },
-        warning = { "DiagnosticWarn",  "WarningMsg", "#FBBF24" },
-        info    = { "DiagnosticInfo",                "#2563EB" },
-        hint    = { "DiagnosticHint",                "#10B981" },
-        default = { "Identifier",                    "#7C3AED" },
-        test    = { "Identifier",                    "#FF00FF" },
       },
     },
     keys = {
@@ -99,6 +87,19 @@ return {
       vim.api.nvim_set_hl(0, "@comment.warning", {})
       vim.api.nvim_set_hl(0, "@comment.note",   {})
       vim.api.nvim_set_hl(0, "@comment.todo",   {})
+    end,
+  },
+
+  -- ==========================================================================
+  -- mini.pairs — автозакрытие парных символов (autopairs).
+  -- Набираешь `(` — сразу подставляется `)`, курсор остаётся между ними.
+  -- Аналог стандартного автозакрытия скобок в VS Code.
+  -- ==========================================================================
+  {
+    "echasnovski/mini.pairs",
+    event = "InsertEnter",                 -- нужен только в режиме вставки
+    config = function()
+      require("mini.pairs").setup()
     end,
   },
 }
