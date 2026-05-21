@@ -49,16 +49,16 @@ return {
           vim.keymap.set("n", lhs, fn, { buffer = bufnr, desc = desc })
         end
 
-        map("<leader>rr", function() kulala.run() end,         "HTTP: запрос под курсором")
-        map("<leader>ra", function() kulala.run_all() end,     "HTTP: все запросы файла")
-        map("<leader>rl", function() kulala.replay() end,      "HTTP: повторить последний запрос")
-        map("<leader>ro", function() kulala.open() end,        "HTTP: открыть окно ответа")
-        map("<leader>rt", function() kulala.toggle_view() end, "HTTP: тело / заголовки")
-        map("<leader>rc", function() kulala.copy() end,        "HTTP: скопировать как curl")
-        map("<leader>re", function() kulala.set_selected_env() end, "HTTP: выбрать окружение")
-        map("<leader>rq", function() kulala.close() end,       "HTTP: закрыть окна kulala")
-        map("]r",         function() kulala.jump_next() end,   "HTTP: следующий запрос")
-        map("[r",         function() kulala.jump_prev() end,   "HTTP: предыдущий запрос")
+        map("<leader>rr", function() kulala.run() end,         "HTTP: run request under cursor")
+        map("<leader>ra", function() kulala.run_all() end,     "HTTP: run all requests in file")
+        map("<leader>rl", function() kulala.replay() end,      "HTTP: replay last request")
+        map("<leader>ro", function() kulala.open() end,        "HTTP: open response window")
+        map("<leader>rt", function() kulala.toggle_view() end, "HTTP: toggle body / headers")
+        map("<leader>rc", function() kulala.copy() end,        "HTTP: copy as curl")
+        map("<leader>re", function() kulala.set_selected_env() end, "HTTP: select environment")
+        map("<leader>rq", function() kulala.close() end,       "HTTP: close kulala windows")
+        map("]r",         function() kulala.jump_next() end,   "HTTP: next request")
+        map("[r",         function() kulala.jump_prev() end,   "HTTP: previous request")
       end
 
       -- Автокоманда: на каждый открываемый http/rest буфер вешаем клавиши.
