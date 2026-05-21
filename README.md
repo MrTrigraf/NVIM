@@ -29,15 +29,11 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 
 <!-- ============================================================
      SCREENSHOT #0 (hero) — Dashboard.
-     Снять: nvim без аргументов, чтобы открылся dashboard.
-     В списке Projects должно быть 3-5 закреплённых проектов.
-     Подкрутить размер окна kitty до 120×34 для красоты ASCII.
-     Размер файла: ~1200px по ширине, .png.
      ============================================================ -->
 
 ![Главный экран — Dashboard](assets/screenshots/00-dashboard.png)
 
-<sub><i>Стартовый экран при запуске <code>nvim</code> без аргументов: ASCII-логотип, закреплённые проекты, плавающий курсор перепрыгивает между ними.</i></sub>
+<sub><i>Стартовый экран при запуске <code>nvim</code> без аргументов: ASCII-логотип, закреплённые проекты.</i></sub>
 
 </div>
 
@@ -45,8 +41,8 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 
 ## 📑 Оглавление
 
-- [Что внутри](#что-внутри)
 - [Скриншоты](#скриншоты)
+- [Что внутри](#что-внутри)
 - [Требования](#требования)
 - [Установка](#установка)
 - [Раскладка клавиш](#раскладка-клавиш)
@@ -56,10 +52,62 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 
 ---
 
+<a id="скриншоты"></a>
+## 📸 Скриншоты
+
+<!-- ============================================================
+     GALERY 3x2 на HTML-таблице — единственный способ
+     получить две колонки в Markdown на GitHub.
+     6 ячеек = 6 скриншотов.
+     ============================================================ -->
+
+<table>
+<tr>
+  <td width="50%" valign="top">
+    <!-- SCREENSHOT #1 — Coding (Go + LSP) -->
+    <img src="assets/screenshots/01-coding.png" alt="Coding: Go + LSP" />
+    <p align="center"><sub><i>Go-файл: completion с docstring, inlay hints, diagnostics, treesitter-подсветка.</i></sub></p>
+  </td>
+  <td width="50%" valign="top">
+    <!-- SCREENSHOT #2 — Debug (nvim-dap-ui) -->
+    <img src="assets/screenshots/02-debug.png" alt="Debug: nvim-dap-ui" />
+    <p align="center"><sub><i>Отладка через Delve: variables, call stack, watch, REPL, stop-on-breakpoint.</i></sub></p>
+  </td>
+</tr>
+<tr>
+  <td width="50%" valign="top">
+    <!-- SCREENSHOT #3 — Testing (neotest) -->
+    <img src="assets/screenshots/03-testing.png" alt="Testing: neotest" />
+    <p align="center"><sub><i>neotest summary справа, статусы тестов в gutter, можно дебажить тест прямо отсюда.</i></sub></p>
+  </td>
+  <td width="50%" valign="top">
+    <!-- SCREENSHOT #4 — Search (telescope live_grep) -->
+    <img src="assets/screenshots/04-search.png" alt="Search: telescope live_grep" />
+    <p align="center"><sub><i>Telescope live_grep: fuzzy-поиск по содержимому файлов, превью с подсветкой совпадения справа.</i></sub></p>
+  </td>
+</tr>
+<tr>
+  <td width="50%" valign="top">
+    <!-- SCREENSHOT #5 — HTTP (kulala) -->
+    <img src="assets/screenshots/05-http.png" alt="HTTP: kulala.nvim" />
+    <p align="center"><sub><i>kulala.nvim: запрос в <code>.http</code>-файле, ответ — справа. JetBrains HTTP Client прямо в редакторе.</i></sub></p>
+  </td>
+  <td width="50%" valign="top">
+    <!-- SCREENSHOT #6 — Database (vim-dadbod-ui) -->
+    <img src="assets/screenshots/06-db.png" alt="DB: vim-dadbod-ui" />
+    <p align="center"><sub><i>vim-dadbod-ui: PostgreSQL подключение, дерево схемы, SQL с автодополнением, таблица результата.</i></sub></p>
+  </td>
+</tr>
+</table>
+
+<sub><a href="#top">⬆ Наверх</a></sub>
+
+---
+
 <a id="что-внутри"></a>
 ## ✨ Что внутри
 
-Полнофункциональная IDE для Go-разработки, собранная за 15 итераций. Цель — догнать GoLand и VS Code по возможностям, оставаясь быстрым, прозрачным и полностью под контролем.
+Полнофункциональная IDE для Go-разработки. Цель — догнать GoLand и VS Code по возможностям, оставаясь быстрым, прозрачным и полностью под контролем.
 
 ### Языковая интеллектика
 - **LSP**: `gopls`, `yaml-language-server` (+ SchemaStore), `json-lsp`, `taplo`, `dockerfile-language-server`, `docker-compose-language-service`, `lua-language-server`, `bash-language-server`, `marksman`
@@ -104,87 +152,6 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 
 ---
 
-<a id="скриншоты"></a>
-## 📸 Скриншоты
-
-<!-- ============================================================
-     GALERY 3x2 на HTML-таблице — единственный способ
-     получить две колонки в Markdown на GitHub.
-     6 ячеек = 6 скриншотов.
-     ============================================================ -->
-
-<table>
-<tr>
-  <td width="50%" valign="top">
-    <!-- SCREENSHOT #1 — Coding (Go + LSP) -->
-    <!-- Снять: открыть cmd/server/main.go в проекте Gofer.
-         Поставить курсор на вызов какой-нибудь функции (например,
-         http.ListenAndServe), вызвать completion (<C-Space>),
-         чтобы появился popup с docstring. В коде должна быть
-         хотя бы одна ошибка с красным подчёркиванием. Видны
-         inlay hints (серый ghost-text с именами параметров). -->
-    <img src="assets/screenshots/01-coding.png" alt="Coding: Go + LSP" />
-    <p align="center"><sub><i>Go-файл: completion с docstring, inlay hints, diagnostics, treesitter-подсветка.</i></sub></p>
-  </td>
-  <td width="50%" valign="top">
-    <!-- SCREENSHOT #2 — Debug (nvim-dap-ui) -->
-    <!-- Снять: поставить breakpoint (<leader>db) в main.go.
-         Запустить debug — должна остановиться программа.
-         Открыть dap-ui (<leader>du). В кадре должны быть:
-         правая панель Variables, левая Stack/Watch/Breakpoints,
-         нижняя REPL, в коде — стрелка на текущей строке. -->
-    <img src="assets/screenshots/02-debug.png" alt="Debug: nvim-dap-ui" />
-    <p align="center"><sub><i>Отладка через Delve: variables, call stack, watch, REPL, stop-on-breakpoint.</i></sub></p>
-  </td>
-</tr>
-<tr>
-  <td width="50%" valign="top">
-    <!-- SCREENSHOT #3 — Testing (neotest) -->
-    <!-- Снять: открыть _test.go-файл с несколькими тестами.
-         Запустить все (<leader>ta). Открыть summary (<leader>tp)
-         — она появится справа. В summary должны быть зелёные ✓
-         и красные ✗. В коде слева — знаки рядом со строкой
-         func Test... (зелёный кружок / красный X). -->
-    <img src="assets/screenshots/03-testing.png" alt="Testing: neotest" />
-    <p align="center"><sub><i>neotest summary справа, статусы тестов в gutter, можно дебажить тест прямо отсюда.</i></sub></p>
-  </td>
-  <td width="50%" valign="top">
-    <!-- SCREENSHOT #4 — Coding context (neo-tree + harpoon) -->
-    <!-- Снять: neo-tree слева раскрыт на проекте Gofer
-         (<leader>e). В центре — открытый .go-файл.
-         Сверху видна tabline или harpoon-меню (<leader>hh)
-         со списком pinned-файлов. Демонстрирует "общий вид". -->
-    <img src="assets/screenshots/04-files.png" alt="Files: neo-tree + harpoon" />
-    <p align="center"><sub><i>neo-tree слева, harpoon-меню для прыжков между ключевыми файлами проекта.</i></sub></p>
-  </td>
-</tr>
-<tr>
-  <td width="50%" valign="top">
-    <!-- SCREENSHOT #5 — HTTP (kulala) -->
-    <!-- Снять: создать или открыть .http-файл с парой запросов
-         (GET и POST). Поставить курсор на один из них, нажать
-         <leader>rr. Справа откроется вертикальный сплит с ответом
-         (статус, headers, body). В кадре оба — запрос и ответ. -->
-    <img src="assets/screenshots/05-http.png" alt="HTTP: kulala.nvim" />
-    <p align="center"><sub><i>kulala.nvim: запрос в <code>.http</code>-файле, ответ — справа. JetBrains HTTP Client прямо в редакторе.</i></sub></p>
-  </td>
-  <td width="50%" valign="top">
-    <!-- SCREENSHOT #6 — Database (vim-dadbod-ui) -->
-    <!-- Снять: открыть dadbod-ui (<leader>Bb).
-         В левом drawer виден gofer_db_local с раскрытым
-         деревом (Databases > public > Tables > <твоя таблица>).
-         Справа открыт SQL-буфер с запросом и таблица результата
-         под ним (после <leader>Br). -->
-    <img src="assets/screenshots/06-db.png" alt="DB: vim-dadbod-ui" />
-    <p align="center"><sub><i>vim-dadbod-ui: PostgreSQL подключение, дерево схемы, SQL с автодополнением, таблица результата.</i></sub></p>
-  </td>
-</tr>
-</table>
-
-<sub><a href="#top">⬆ Наверх</a></sub>
-
----
-
 <a id="требования"></a>
 ## 🛠 Требования
 
@@ -224,12 +191,14 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 ### Автоматическая (Arch Linux)
 
 ```fish
-git clone git@github.com:MrTrigraf/NVIM.git ~/.config/nvim
+git clone https://github.com/MrTrigraf/NVIM.git ~/.config/nvim
 cd ~/.config/nvim
 ./bootstrap.sh
 ```
 
 `bootstrap.sh` идемпотентен — поставит системные пакеты через `pacman`, Go-инструменты через `go install`, скачает все плагины и LSP-серверы. Подробности — внутри скрипта.
+
+> Если у тебя настроен SSH-ключ для GitHub — можно использовать `git@github.com:MrTrigraf/NVIM.git` вместо HTTPS-URL.
 
 ### Ручная (любой Linux/macOS)
 
@@ -263,7 +232,7 @@ mv ~/.cache/nvim ~/.cache/nvim.bak.(date +%Y%m%d)
 **4. Клонирование и первый запуск**:
 
 ```fish
-git clone git@github.com:MrTrigraf/NVIM.git ~/.config/nvim
+git clone https://github.com/MrTrigraf/NVIM.git ~/.config/nvim
 nvim --headless "+Lazy! sync" +qa
 nvim --headless "+MasonInstallAll" +qa
 ```
@@ -453,8 +422,7 @@ nvim
 ### LSP не работает
 
 ```vim
-:LspInfo
-:LspLog
+:checkhealth vim.lsp
 :Mason
 ```
 
@@ -496,13 +464,9 @@ nvim --headless "+Lazy! sync" +qa
 - [mfussenegger/nvim-dap](https://github.com/mfussenegger/nvim-dap) и [leoluz/nvim-dap-go](https://github.com/leoluz/nvim-dap-go) — отладка
 - [nvim-neotest/neotest](https://github.com/nvim-neotest/neotest) — тесты
 - [mistweaverco/kulala.nvim](https://github.com/mistweaverco/kulala.nvim) — HTTP-клиент
-- [tpope/vim-dabbod](https://github.com/tpope/vim-dadbod) + [kristijanhusak/vim-dadbod-ui](https://github.com/kristijanhusak/vim-dadbod-ui) — БД
+- [tpope/vim-dadbod](https://github.com/tpope/vim-dadbod) + [kristijanhusak/vim-dadbod-ui](https://github.com/kristijanhusak/vim-dadbod-ui) — БД
 - [thesimonho/kanagawa-paper.nvim](https://github.com/thesimonho/kanagawa-paper.nvim) — colorscheme
 
 <sub><a href="#top">⬆ Наверх</a></sub>
 
 ---
-
-<div align="center">
-<sub>Собрано вручную с помощью <a href="https://claude.ai">Claude</a>. Лицензия — <a href="LICENSE">MIT</a> (если файл существует) или просто бери и пользуйся.</sub>
-</div>
