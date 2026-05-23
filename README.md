@@ -48,7 +48,6 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 - [Раскладка клавиш](#раскладка-клавиш)
 - [Структура проекта](#структура-проекта)
 - [Troubleshooting](#troubleshooting)
-- [Благодарности](#благодарности)
 
 ---
 
@@ -446,26 +445,6 @@ nvim --headless "+Lazy! sync" +qa
 ```
 
 Удаляет всё, что lazy и mason скачали; конфиг (`~/.config/nvim`) остаётся. При следующем запуске всё переустановится.
-
-<sub><a href="#top">⬆ Наверх</a></sub>
-
----
-
-<a id="благодарности"></a>
-## 🙏 Благодарности
-
-Этот конфиг стоит на плечах гигантов. Спасибо авторам всех использованных плагинов, в особенности:
-
-- [folke/lazy.nvim](https://github.com/folke/lazy.nvim) — менеджер плагинов нового поколения
-- [folke/snacks.nvim](https://github.com/folke/snacks.nvim) — швейцарский нож (dashboard, terminal, notifier, ...)
-- [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) и [mason-org/mason.nvim](https://github.com/mason-org/mason.nvim) — экосистема LSP
-- [saghen/blink.cmp](https://github.com/saghen/blink.cmp) — completion с Rust fuzzy matcher
-- [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) — семантическая подсветка
-- [mfussenegger/nvim-dap](https://github.com/mfussenegger/nvim-dap) и [leoluz/nvim-dap-go](https://github.com/leoluz/nvim-dap-go) — отладка
-- [nvim-neotest/neotest](https://github.com/nvim-neotest/neotest) — тесты
-- [mistweaverco/kulala.nvim](https://github.com/mistweaverco/kulala.nvim) — HTTP-клиент
-- [tpope/vim-dadbod](https://github.com/tpope/vim-dadbod) + [kristijanhusak/vim-dadbod-ui](https://github.com/kristijanhusak/vim-dadbod-ui) — БД
-- [thesimonho/kanagawa-paper.nvim](https://github.com/thesimonho/kanagawa-paper.nvim) — colorscheme
 
 <sub><a href="#top">⬆ Наверх</a></sub>
 

@@ -45,7 +45,6 @@ LSP, debug, tests, HTTP, PostgreSQL, lazygit, lazydocker — all under one roof.
 - [Keymaps](#keymaps)
 - [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
-- [Credits](#credits)
 
 ---
 
@@ -444,26 +443,6 @@ nvim --headless "+Lazy! sync" +qa
 ```
 
 Deletes everything lazy and mason have downloaded; the config (`~/.config/nvim`) stays. Everything reinstalls on next launch.
-
-<sub><a href="#top">⬆ Back to top</a></sub>
-
----
-
-<a id="credits"></a>
-## 🙏 Credits
-
-This config stands on the shoulders of giants. Thanks to the authors of every plugin used, especially:
-
-- [folke/lazy.nvim](https://github.com/folke/lazy.nvim) — next-gen plugin manager
-- [folke/snacks.nvim](https://github.com/folke/snacks.nvim) — Swiss army knife (dashboard, terminal, notifier, ...)
-- [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) and [mason-org/mason.nvim](https://github.com/mason-org/mason.nvim) — the LSP ecosystem
-- [saghen/blink.cmp](https://github.com/saghen/blink.cmp) — completion with a Rust fuzzy matcher
-- [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) — semantic highlighting
-- [mfussenegger/nvim-dap](https://github.com/mfussenegger/nvim-dap) and [leoluz/nvim-dap-go](https://github.com/leoluz/nvim-dap-go) — debugging
-- [nvim-neotest/neotest](https://github.com/nvim-neotest/neotest) — testing
-- [mistweaverco/kulala.nvim](https://github.com/mistweaverco/kulala.nvim) — HTTP client
-- [tpope/vim-dadbod](https://github.com/tpope/vim-dadbod) + [kristijanhusak/vim-dadbod-ui](https://github.com/kristijanhusak/vim-dadbod-ui) — database
-- [thesimonho/kanagawa-paper.nvim](https://github.com/thesimonho/kanagawa-paper.nvim) — colorscheme
 
 <sub><a href="#top">⬆ Back to top</a></sub>
 
