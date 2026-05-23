@@ -7,7 +7,7 @@
 return {
   {
     "thesimonho/kanagawa-paper.nvim",
-
+    
     priority = 1000,
     lazy = false,
 
@@ -43,130 +43,190 @@ return {
 
         return {
           -- Прозрачный фон
-          Normal       = { bg = "none", fg = theme.ui.fg },
-          NormalNC     = { bg = "none" },
-          SignColumn   = { bg = "none" },
-          LineNr       = { bg = "none" },
-          CursorLineNr = { bg = "none" },
-          StatusLine   = { bg = "none" },
-          StatusLineNC = { bg = "none" },
-          EndOfBuffer  = { bg = "none" },
-          CursorLine = { bg = palette.sumiInk5 },
-          Cursor     = { fg = theme.ui.bg, bg = theme.ui.fg },
-          lCursor    = { fg = theme.ui.bg, bg = theme.ui.fg },
+          Normal                                    = { bg = "none", fg = theme.ui.fg },
+          NormalNC                                  = { bg = "none" },
+          SignColumn                                = { bg = "none" },
+          LineNr                                    = { bg = "none" },
+          CursorLineNr                              = { bg = "none" },
+          StatusLine                                = { bg = "none" },
+          StatusLineNC                              = { bg = "none" },
+          EndOfBuffer                               = { bg = "none" },
+          CursorLine                                = { bg = palette.sumiInk5 },
+          Cursor                                    = { fg = theme.ui.bg, bg = theme.ui.fg },
+          lCursor                                   = { fg = theme.ui.bg, bg = theme.ui.fg },
 
           -- Floating-окна — сохраняем привычный вид
-          NormalFloat = { bg = "none", fg = theme.ui.fg },
-          FloatBorder = { bg = "none", fg = theme.syn.fun },
-          FloatTitle   = { bg = theme.ui.bg_dim, fg = theme.syn.special1, bold = true },
-          FloatFooter  = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
+          NormalFloat                               = { bg = "none", fg = theme.ui.fg },
+          FloatBorder                               = { bg = "none", fg = theme.syn.fun },
+          FloatTitle                                = { bg = theme.ui.bg_dim, fg = theme.syn.special1, bold = true },
+          FloatFooter                               = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
 
         
           -- Telescope 
           -- Фон (прозрачный)
-          TelescopeNormal         = { bg = "none", fg = theme.ui.fg },
-          TelescopePromptNormal   = { bg = "none" },
-          TelescopeResultsNormal  = { bg = "none" },
-          TelescopePreviewNormal  = { bg = "none" },
+          TelescopeNormal                           = { bg = "none", fg = theme.ui.fg },
+          TelescopePromptNormal                     = { bg = "none" },
+          TelescopeResultsNormal                    = { bg = "none" },
+          TelescopePreviewNormal                    = { bg = "none" },
           -- Рамки в стиле kanagawa-paper
-          TelescopeBorder         = { bg = "none", fg = theme.ui.bg_p1 },
-          TelescopePromptBorder   = { bg = "none", fg = theme.syn.fun },        -- бирюза
-          TelescopeResultsBorder  = { bg = "none", fg = theme.syn.special1 },   -- оранж
-          TelescopePreviewBorder  = { bg = "none", fg = palette.oniViolet },    -- фиолет
+          TelescopeBorder                           = { bg = "none", fg = theme.ui.bg_p1 },
+          TelescopePromptBorder                     = { bg = "none", fg = theme.syn.fun },        -- бирюза
+          TelescopeResultsBorder                    = { bg = "none", fg = theme.syn.special1 },   -- оранж
+          TelescopePreviewBorder                    = { bg = "none", fg = palette.oniViolet },    -- фиолет
           -- Заголовки в стиле kanagawa-paper
-          TelescopePromptTitle    = { bg = "none", fg = theme.syn.fun, bold = true },        -- бирюза
-          TelescopeResultsTitle   = { bg = "none", fg = theme.syn.special1, bold = true },   -- оранж
-          TelescopePreviewTitle   = { bg = "none", fg = palette.oniViolet, bold = true },    -- фиолет
-          TelescopeTitle          = { bg = "none", fg = theme.syn.special1, bold = true },
+          TelescopePromptTitle                      = { bg = "none", fg = theme.syn.fun, bold = true },        -- бирюза
+          TelescopeResultsTitle                     = { bg = "none", fg = theme.syn.special1, bold = true },   -- оранж
+          TelescopePreviewTitle                     = { bg = "none", fg = palette.oniViolet, bold = true },    -- фиолет
+          TelescopeTitle                            = { bg = "none", fg = theme.syn.special1, bold = true },
           
           -- render-markdown.nvim: цвета заголовков H1..H6.
-          RenderMarkdownH1Bg = { bg = palette.waveBlue1 },
-          RenderMarkdownH2Bg = { bg = palette.winterYellow },
-          RenderMarkdownH3Bg = { bg = palette.winterGreen },
-          RenderMarkdownH4Bg = { bg = palette.winterRed },
-          RenderMarkdownH5Bg = { bg = palette.waveBlue1 },
-          RenderMarkdownH6Bg = { bg = palette.sumiInk5 },
+          RenderMarkdownH1Bg                        = { bg = palette.waveBlue1 },
+          RenderMarkdownH2Bg                        = { bg = palette.winterYellow },
+          RenderMarkdownH3Bg                        = { bg = palette.winterGreen },
+          RenderMarkdownH4Bg                        = { bg = palette.winterRed },
+          RenderMarkdownH5Bg                        = { bg = palette.waveBlue1 },
+          RenderMarkdownH6Bg                        = { bg = palette.sumiInk5 },
 
-          RenderMarkdownH1   = { fg = theme.syn.fun,       bold = true },
-          RenderMarkdownH2   = { fg = theme.syn.special1,  bold = true },
-          RenderMarkdownH3   = { fg = palette.springGreen, bold = true },
-          RenderMarkdownH4   = { fg = palette.oniViolet,   bold = true },
-          RenderMarkdownH5   = { fg = palette.crystalBlue, bold = true },
-          RenderMarkdownH6   = { fg = theme.ui.fg_dim,     bold = true },
+          RenderMarkdownH1                          = { fg = theme.syn.fun,       bold = true },
+          RenderMarkdownH2                          = { fg = theme.syn.special1,  bold = true },
+          RenderMarkdownH3                          = { fg = palette.springGreen, bold = true },
+          RenderMarkdownH4                          = { fg = palette.oniViolet,   bold = true },
+          RenderMarkdownH5                          = { fg = palette.crystalBlue, bold = true },
+          RenderMarkdownH6                          = { fg = theme.ui.fg_dim,     bold = true },
 
           -- Neo-tree: кастомные цвета папок (из палитры, без жёстких hex)
-          NeoTreeDirectoryIcon  = { fg = palette.boatYellow2 },
-          NeoTreeDirectoryName  = { fg = theme.ui.fg },
-          NeoTreeRootName       = { fg = palette.oniViolet, bold = true },
-          NeoTreeExpander       = { fg = palette.crystalBlue },
-          NeoTreeIndentMarker   = { fg = palette.oniViolet },
-          NeoTreeFloatBorder    = { bg = theme.ui.bg_dim, fg = theme.syn.fun },
-          NeoTreeFloatTitle     = { bg = theme.ui.bg_dim, fg = theme.syn.special1, bold = true },
+          NeoTreeDirectoryIcon                      = { fg = palette.boatYellow2 },
+          NeoTreeDirectoryName                      = { fg = theme.ui.fg },
+          NeoTreeRootName                           = { fg = palette.oniViolet, bold = true },
+          NeoTreeExpander                           = { fg = palette.crystalBlue },
+          NeoTreeIndentMarker                       = { fg = palette.oniViolet },
+          NeoTreeFloatBorder                        = { bg = theme.ui.bg_dim, fg = theme.syn.fun },
+          NeoTreeFloatTitle                         = { bg = theme.ui.bg_dim, fg = theme.syn.special1, bold = true },
           -- Neo-tree: прозрачный фон сайдбара, чтобы не дрался с прозрачностью редактора.
           -- kanagawa-paper.plugins.neo_tree = true задаёт сайдбару плотный bg, поэтому
           -- мы тут перебиваем его на none.
-          NeoTreeNormal       = { bg = "none" },
-          NeoTreeNormalNC     = { bg = "none" },
-          NeoTreeEndOfBuffer  = { bg = "none" },
+          NeoTreeNormal                             = { bg = "none" },
+          NeoTreeNormalNC                           = { bg = "none" },
+          NeoTreeEndOfBuffer                        = { bg = "none" },
           --NeoTreeWinSeparator = { bg = "none", fg = theme.ui.bg_p1 },
           -- Neo-tree source_selector (вкладки File/Bufs/Git над деревом).
           -- Делаем плашку прозрачной, активной даём акцентный цвет, неактивным —
           -- приглушённый, чтобы было читаемо но не перетягивало внимание.
-          NeoTreeTabActive            = { bg = "none", fg = theme.syn.fun, bold = true },
-          NeoTreeTabInactive          = { bg = "none", fg = theme.ui.fg_dim },
-          NeoTreeTabSeparatorActive   = { bg = "none", fg = theme.syn.fun },
-          NeoTreeTabSeparatorInactive = { bg = "none", fg = theme.ui.bg_p1 },
+          NeoTreeTabActive                          = { bg = "none", fg = theme.syn.fun, bold = true },
+          NeoTreeTabInactive                        = { bg = "none", fg = theme.ui.fg_dim },
+          NeoTreeTabSeparatorActive                 = { bg = "none", fg = theme.syn.fun },
+          NeoTreeTabSeparatorInactive               = { bg = "none", fg = theme.ui.bg_p1 },
 
           -- Aerial (outline)
-          AerialLine   = { bg = theme.ui.bg_p1 },
-          AerialGuide  = { fg = theme.ui.bg_p2 },
-          AerialNormal = { bg = "none", fg = theme.ui.fg },
+          AerialLine                                = { bg = theme.ui.bg_p1 },
+          AerialGuide                               = { fg = theme.ui.bg_p2 },
+          AerialNormal                              = { bg = "none", fg = theme.ui.fg },
 
           -- indent-blankline
-          IblIndent = { fg = theme.ui.bg_p2 },
-          IblScope  = { fg = theme.syn.fun, bold = true },
+          IblIndent                                 = { fg = theme.ui.bg_p2 },
+          IblScope                                  = { fg = theme.syn.fun, bold = true },
 
           -- Lazy менеджер
-          LazyNormal       = { bg = theme.ui.bg_dim, fg = theme.ui.fg },
-          LazyButton       = { bg = theme.ui.bg_p1, fg = theme.ui.fg },
-          LazyButtonActive = { bg = theme.syn.fun, fg = theme.ui.bg_dim, bold = true },
-          LazyH1           = { bg = theme.syn.fun, fg = theme.ui.bg_dim, bold = true },
+          LazyNormal                                = { bg = theme.ui.bg_dim, fg = theme.ui.fg },
+          LazyButton                                = { bg = theme.ui.bg_p1, fg = theme.ui.fg },
+          LazyButtonActive                          = { bg = theme.syn.fun, fg = theme.ui.bg_dim, bold = true },
+          LazyH1                                    = { bg = theme.syn.fun, fg = theme.ui.bg_dim, bold = true },
 
           -- Which-key (полная прозрачность + стиль как Telescope/Neo-tree)
-          WhichKey          = { fg = theme.syn.fun },
-          WhichKeyGroup     = { fg = theme.syn.special1 },
-          WhichKeyDesc      = { fg = theme.ui.fg },
-          WhichKeySeparator = { fg = theme.ui.fg_dim },
-          WhichKeyFloat     = { bg = "none" },  -- прозрачный фон попапа
-          WhichKeyNormal    = { bg = "none", fg = theme.syn.special1 },  -- основной текст
-          WhichKeyBorder    = { bg = "none", fg = palette.oniViolet },  -- бирюзовая рамка
-          WhichKeyTitle     = { bg = "none", fg = theme.syn.special1, bold = true },  -- title без фона
-          WhichKeyValue     = { fg = theme.ui.fg_dim },
-          WhichKeyIcon      = { fg = theme.syn.fun },
+          WhichKey                                  = { fg = theme.syn.fun },
+          WhichKeyGroup                             = { fg = theme.syn.special1 },
+          WhichKeyDesc                              = { fg = theme.ui.fg },
+          WhichKeySeparator                         = { fg = theme.ui.fg_dim },
+          WhichKeyFloat                             = { bg = "none" },  -- прозрачный фон попапа
+          WhichKeyNormal                            = { bg = "none", fg = theme.syn.special1 },  -- основной текст
+          WhichKeyBorder                            = { bg = "none", fg = palette.oniViolet },  -- бирюзовая рамка
+          WhichKeyTitle                             = { bg = "none", fg = theme.syn.special1, bold = true },  -- title без фона
+          WhichKeyValue                             = { fg = theme.ui.fg_dim },
+          WhichKeyIcon                              = { fg = theme.syn.fun },
 
           -- Dashboard (snacks) — цвета для футера
-          SnacksDashboardSpecial = { fg = palette.surimiOrange },
-          DashboardFooterCount   = { fg = palette.crystalBlue, bold = true },
-          DashboardFooterTime    = { fg = palette.waveAqua2 },
+          SnacksDashboardSpecial                    = { fg = palette.surimiOrange },
+          DashboardFooterCount                      = { fg = palette.crystalBlue, bold = true },
+          DashboardFooterTime                       = { fg = palette.waveAqua2 },
 
           -- ── lualine "buffers" компонент ────────────────────────────
-          LualineBufferActive   = { bg = "none", fg = palette.crystalBlue, bold = true },
-          LualineBufferInactive = { bg = "none", fg = theme.ui.fg_dim },
+          LualineBufferActive                       = { bg = "none", fg = palette.crystalBlue, bold = true },
+          LualineBufferInactive                     = { bg = "none", fg = theme.ui.fg_dim },
 
           -- ── Mason LSP компонент ────────────────────────────
           -- Ключевое: используем theme.ui.bg_dim / theme.ui.fg_dim (с подчёркиванием)
-          MasonNormal           = { bg = "none", fg = theme.ui.fg },
-          MasonBorder           = { bg = "none", fg = theme.syn.fun },
-          MasonHeader           = { bg = "none", fg = theme.syn.special1, bold = true },
-          MasonHeaderSecondary  = { bg = "none", fg = theme.syn.fun, bold = true },
-          MasonMuted            = { fg = theme.ui.fg_dim },
-          MasonHighlight        = { fg = theme.syn.fun },
-          MasonHighlightBlock   = { fg = theme.syn.special1 },
-          MasonHighlightBlockBold = { fg = theme.syn.special1, bold = true },
-          MasonHighlightSecondary = { fg = theme.syn.fun },
-          MasonLink             = { fg = palette.crystalBlue },
-          MasonError            = { fg = palette.surimiOrange },
-          MasonWarning          = { fg = palette.waveRed },
+          MasonNormal                               = { bg = "none", fg = theme.ui.fg },
+          MasonBorder                               = { bg = "none", fg = theme.syn.fun },
+          MasonHeader                               = { bg = "none", fg = theme.syn.special1, bold = true },
+          MasonHeaderSecondary                      = { bg = "none", fg = theme.syn.fun, bold = true },
+          MasonMuted                                = { fg = theme.ui.fg_dim },
+          MasonHighlight                            = { fg = theme.syn.fun },
+          MasonHighlightBlock                       = { fg = theme.syn.special1 },
+          MasonHighlightBlockBold                   = { fg = theme.syn.special1, bold = true },
+          MasonHighlightSecondary                   = { fg = theme.syn.fun },
+          MasonLink                                 = { fg = palette.crystalBlue },
+          MasonError                                = { fg = palette.surimiOrange },
+          MasonWarning                              = { fg = palette.waveRed },
+
+          -- Go semantic tokens
+          ["@keyword"]                              = { fg = theme.syn.keyword },
+          ["@keyword.function"]                     = { fg = theme.syn.keyword },
+          ["@keyword.type"]                         = { fg = theme.syn.keyword },
+          ["@keyword.import"]                       = { fg = theme.syn.keyword },
+          ["@keyword.modifier"]                     = { fg = theme.syn.keyword },
+          ["@keyword.coroutine"]                    = { fg = theme.syn.keyword },
+
+          -- Control flow (if, else, for, range, return)
+          ["@keyword.return"]                       = { fg = theme.syn.statement },
+          ["@keyword.conditional"]                  = { fg = theme.syn.statement },
+          ["@keyword.repeat"]                       = { fg = theme.syn.statement },
+
+          -- Types (int, string, error, User, Status)
+          ["@type"]                                 = { fg = theme.syn.type },
+          ["@type.builtin"]                         = { fg = theme.syn.type },
+          ["@lsp.type.type"]                        = { fg = theme.syn.type },
+          ["@lsp.type.class"]                       = { fg = theme.syn.type },
+          ["@lsp.type.interface"]                   = { fg = theme.syn.type },
+          ["@lsp.type.enum"]                        = { fg = theme.syn.type },
+
+          -- Functions, methods
+          ["@function"]                             = { fg = theme.syn.fun },
+          ["@function.call"]                        = { fg = theme.syn.fun },
+          ["@function.method"]                      = { fg = theme.syn.fun },
+          ["@function.method.call"]                 = { fg = theme.syn.fun },
+          ["@function.builtin"]                     = { fg = theme.syn.fun },
+          ["@lsp.type.function"]                    = { fg = theme.syn.fun },
+          ["@lsp.type.method"]                      = { fg = theme.syn.fun },
+          ["@lsp.typemod.function.defaultLibrary"]  = { fg = theme.syn.fun },
+
+          -- Variables, params, fields, namespaces
+          ["@variable"]                             = { fg = theme.syn.identifier },
+          ["@variable.parameter"]                   = { fg = theme.syn.identifier },
+          ["@variable.member"]                      = { fg = theme.syn.identifier },
+          ["@property"]                             = { fg = theme.syn.identifier },
+          ["@lsp.type.variable"]                    = { fg = theme.syn.identifier },
+          ["@lsp.type.parameter"]                   = { fg = theme.syn.identifier },
+          ["@lsp.type.property"]                    = { fg = theme.syn.identifier },
+          ["@lsp.type.namespace"]                   = { fg = theme.syn.identifier, italic = true },
+          ["@module"]                               = { fg = theme.syn.identifier, italic = true },
+          
+          -- Builtins (nil, iota)
+          ["@constant.builtin"]                     = { fg = theme.syn.constant },
+          ["@lsp.typemod.variable.defaultLibrary"]  = { fg = theme.syn.constant },
+
+          ["@string"]                               = { fg = theme.syn.string, italic = true },
+
+          -- Rainbow delimiters
+          RainbowDelimiterYellow                    = { fg = theme.syn.fun },        -- серо-голубой (как функции)
+          RainbowDelimiterViolet                    = { fg = theme.syn.keyword },    -- розово-серый (как keywords)
+          RainbowDelimiterBlue                      = { fg = theme.syn.statement },  -- холодный синий (как return/if)
+          RainbowDelimiterOrange                    = { fg = theme.syn.constant },   -- тёплый терракот (как nil/iota)
+          RainbowDelimiterGreen                     = { fg = theme.syn.string },     -- приглушённый зелёный (как строки)
+          RainbowDelimiterCyan                      = { fg = theme.syn.type },       -- мягкий aqua (как типы)
+          RainbowDelimiterRed                       = { fg = theme.syn.identifier }, -- бежевый (как переменные)
+
+          SmearCursorNormal                         = { fg = palette.fujiWhite },
+          LocalHighlight                            = { bg = palette.sumiInk5, underline = true },
         }
       end,
     },

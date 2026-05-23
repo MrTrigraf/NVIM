@@ -78,4 +78,74 @@ return {
       },
     },
   },
+
+    -- ==========================================================================
+    -- rainbow-delimiters.nvim — разноцветные парные скобки по Treesitter.
+    -- ==========================================================================
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+  },
+
+  -- ==========================================================================
+  -- smear-cursor.nvim — плавный «смаз» курсора при прыжках.
+  -- ==========================================================================
+  {
+    "sphamba/smear-cursor.nvim",
+    event = "VeryLazy",
+    main = "smear_cursor",
+    opts = {
+      stiffness                        = 0.38,
+      trailing_stiffness               = 0.36,
+      hide_target_hack                 = false,
+      legacy_computing_symbols_support = true,
+      filetypes_disabled               = { "snacks_dashboard" },
+      cursor_color                     = "none",
+    },
+  },
+
+  -- ==========================================================================
+  -- mini.animate — плавная анимация открытия/закрытия/ресайза окон.
+  -- Курсор и скролл отключены: курсор анимирует smear-cursor,
+  -- скролл — snacks.scroll.
+  -- ==========================================================================
+  {
+    "echasnovski/mini.animate",
+    event = "VeryLazy",
+    opts = function()
+      local animate = require("mini.animate")
+      return {
+        cursor = { enable = false },
+        scroll = { enable = false },
+        resize = {
+          enable  = true,
+          timing  = animate.gen_timing.linear({ duration = 150, unit = "total" }),
+        },
+        open = {
+          enable  = true,
+          timing  = animate.gen_timing.linear({ duration = 150, unit = "total" }),
+        },
+        close = {
+          enable  = true,
+          timing  = animate.gen_timing.linear({ duration = 150, unit = "total" }),
+        },
+      }
+    end,
+  },
+
+  -- ==========================================================================
+  -- local-highlight.nvim — подсветка вхождений слова под курсором в пределах
+  -- текущей области видимости (функции/блока), а не всего файла.
+  -- ==========================================================================
+  {
+    "tzachar/local-highlight.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      file_types = { "go", "lua", "yaml", "json", "dockerfile", "sql", "python" },
+      hlgroup = "LocalHighlight",
+      insert_mode = false,
+      min_match_len = 2,         -- не подсвечивать одиночные буквы (`i`, `_`)
+    },
+  },
 }

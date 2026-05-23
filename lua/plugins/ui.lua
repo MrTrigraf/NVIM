@@ -55,6 +55,7 @@ return {
         { "<leader>T", group = "terminal" },
         { "<leader>t", group = "tests" },
         { "<leader>x", group = "diagnostics" },
+        { "<leader>r", group = "http" },
       },
 
 

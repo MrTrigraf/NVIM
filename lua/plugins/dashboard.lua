@@ -136,7 +136,14 @@ return {
         date_format = "%R",
       },
 
-      input = { enabled = true },
+      input = {
+        enabled = true,
+        win = {
+          relative = "cursor",   -- позиционирование относительно курсора
+          row      = -3,         -- на 3 строки выше курсора
+          col      = 0,          -- по горизонтали — на месте курсора
+        },
+      },
       quickfile = { enabled = true },
       scroll = { enabled = true },
       bigfile = { enabled = false },
@@ -164,9 +171,17 @@ return {
         vim.cmd("set guicursor+=a:Cursor/lCursor")
       end
 
+      -- Флаг, чтобы не включать анимацию повторно
+      local smear_enabled = true
+
+      -- Вход в дашборд – выключаем анимацию (один раз)
       vim.api.nvim_create_autocmd("User", {
         pattern = "SnacksDashboardOpened",
         callback = function(event)
+          if smear_enabled then
+            require("smear_cursor").toggle(false)
+            smear_enabled = false
+          end
           cursor_blend(100)
 
           local pinned = require("util.pinned_projects").list()
@@ -186,9 +201,12 @@ return {
         end,
       })
 
-      vim.api.nvim_create_autocmd("BufLeave", {
+      -- Выход из дашборда – включаем анимацию (один раз, и только если вышли именно из него)
+      vim.api.nvim_create_autocmd("BufEnter", {
         callback = function()
-          if vim.bo.filetype == "snacks_dashboard" then
+          if not smear_enabled and vim.bo.filetype ~= "snacks_dashboard" then
+            require("smear_cursor").toggle(true)
+            smear_enabled = true
             cursor_blend(0)
           end
         end,
