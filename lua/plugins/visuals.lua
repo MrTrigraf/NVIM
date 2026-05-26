@@ -118,17 +118,14 @@ return {
       return {
         cursor = { enable = false },
         scroll = { enable = false },
-        resize = {
-          enable  = true,
-          timing  = animate.gen_timing.linear({ duration = 150, unit = "total" }),
-        },
+        resize = { enable = false },
         open = {
           enable  = true,
-          timing  = animate.gen_timing.linear({ duration = 150, unit = "total" }),
+          timing  = animate.gen_timing.linear({ duration = 130, unit = "total" }),
         },
         close = {
           enable  = true,
-          timing  = animate.gen_timing.linear({ duration = 150, unit = "total" }),
+          timing  = animate.gen_timing.linear({ duration = 130, unit = "total" }),
         },
       }
     end,
