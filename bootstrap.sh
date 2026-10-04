@@ -96,13 +96,16 @@ info "OK: Arch Linux, non-root user '$USER'."
 # -----------------------------------------------------------------------------
 step "Step 2/7: Backup existing Neovim config (if any)"
 
-backup_if_foreign() {
+# Наш ли репо лежит в указанной папке (по адресу remote origin).
+is_our_repo() {
+  local dir="$1"
+  [[ -d "$dir/.git" ]] || return 1
+  git -C "$dir" remote get-url origin 2>/dev/null | grep -qE "MrTrigraf/NVIM(\.git)?$"
+}
+
+backup_dir() {
   local target="$1"
   if [[ ! -e "$target" ]]; then
-    return 0
-  fi
-  if [[ -d "$target/.git" ]] && (cd "$target" && git remote get-url origin 2>/dev/null | grep -qE "MrTrigraf/NVIM(\.git)?$"); then
-    info "Skip backup: $target is already our repo."
     return 0
   fi
   local backup="${target}.bak.${TIMESTAMP}"
@@ -110,10 +113,16 @@ backup_if_foreign() {
   mv "$target" "$backup"
 }
 
-backup_if_foreign "$HOME/.config/nvim"
-backup_if_foreign "$HOME/.local/share/nvim"
-backup_if_foreign "$HOME/.local/state/nvim"
-backup_if_foreign "$HOME/.cache/nvim"
+# Если конфиг уже наш — это повторный запуск на рабочей машине: плагины, Mason,
+# state и cache принадлежат ему же, их трогать нельзя (иначе всё скачается заново).
+if is_our_repo "$REPO_DIR"; then
+  info "Skip backup: $REPO_DIR is already our repo (data/state/cache left in place)."
+else
+  backup_dir "$HOME/.config/nvim"
+  backup_dir "$HOME/.local/share/nvim"
+  backup_dir "$HOME/.local/state/nvim"
+  backup_dir "$HOME/.cache/nvim"
+fi
 
 # -----------------------------------------------------------------------------
 # Этап 3. Системные пакеты.
