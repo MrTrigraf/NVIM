@@ -11,15 +11,15 @@ end
 local function close_buffers_outside(cwd)
   local keep = normalize_dir(cwd)
 
-  -- Собираем чужие буферы (теперь без проверки name ~= "")
-    local to_delete = {}
+  -- Собираем чужие буферы
+  local to_delete = {}
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted then
       local ft = vim.bo[buf].filetype
       if ft ~= "neo-tree" and ft ~= "snacks_dashboard" and vim.bo[buf].buftype ~= "nofile" then
         local name = vim.api.nvim_buf_get_name(buf)
         local abs = vim.fn.fnamemodify(name, ":p")
-        if not abs:find(keep, 1, true) then
+        if not vim.startswith(abs, keep) then
           table.insert(to_delete, buf)
         end
       end
@@ -34,7 +34,7 @@ local function close_buffers_outside(cwd)
       if ft ~= "neo-tree" and ft ~= "snacks_dashboard" then
         local name = vim.api.nvim_buf_get_name(buf)
         local abs = vim.fn.fnamemodify(name, ":p")
-        if abs:find(keep, 1, true) or vim.bo[buf].buftype == "nofile" then
+        if vim.startswith(abs, keep) or vim.bo[buf].buftype == "nofile" then
           table.insert(valid_keepers, buf)
         end
       end
