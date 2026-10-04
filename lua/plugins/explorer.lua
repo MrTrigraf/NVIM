@@ -248,7 +248,7 @@ return {
         },
         name = {
           trailing_slash        = false,
-          use_git_status_colors = false,         
+          use_git_status_colors = false,
         },
         git_status = {
           symbols = {},
@@ -456,13 +456,13 @@ return {
           vim.opt_local.cursorline   = false
         end,
       })
-      
+
       vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
         pattern = "neo-tree*",
         callback = function(args)
           local buf = args.buf or vim.api.nvim_get_current_buf()
           if vim.bo[buf].filetype == "neo-tree" or vim.bo[buf].filetype == "neo-tree-popup" then
-            vim.wo.statuscolumn = ""
+            -- statuscolumn не трогаем: neo-tree уже в ft_ignore у statuscol.
             vim.wo.foldcolumn = "0"
           end
         end,

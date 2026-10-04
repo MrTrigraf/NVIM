@@ -46,7 +46,18 @@ return {
           "dapui_console",
           "dap-repl",
           "neotest-summary",
+          "neotest-output",
+          "neotest-output-panel",
+          "trouble",
+          "grug-far",
+          "dbui",
+          "dbout",
+          "snacks_dashboard",
         },
+
+        -- По типу буфера: служебные окна плагинов почти всегда nofile,
+        -- терминалы — terminal. Одной строкой отсекаем их все разом.
+        bt_ignore = { "nofile", "prompt", "terminal", "quickfix", "help" },
 
         segments = {
           -- 1) Fold-колонка: маркеры свёрнутых блоков из nvim-ufo.

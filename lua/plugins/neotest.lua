@@ -71,7 +71,7 @@ return {
       callback = function()
         vim.opt_local.foldcolumn = "0"
         vim.opt_local.signcolumn = "yes:1"
-        vim.opt_local.statuscolumn = ""
+        -- statuscolumn не трогаем: эти окна уже в ft_ignore у statuscol.
         vim.opt_local.number = false
         vim.opt_local.relativenumber = false
       end,

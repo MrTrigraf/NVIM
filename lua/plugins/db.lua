@@ -46,7 +46,7 @@ return {
           vim.opt_local.signcolumn     = "no"
           vim.opt_local.number         = false
           vim.opt_local.relativenumber = false
-          vim.opt_local.statuscolumn   = ""
+          -- statuscolumn здесь не трогаем: dbui/dbout уже в ft_ignore у statuscol.
         end,
       })
     end,

@@ -134,26 +134,9 @@ return {
             hide_filename_extension = false,
             show_modified_status    = true,
 
-            -- ── Фильтр: только буферы текущего проекта ─────────────────
-            -- Запоминаем root активного буфера (папку с .git/go.mod) при
-            -- первом вызове и фильтруем все буферы по нему. Если открыл
-            -- файл из другого проекта — он не попадёт в полосу.
-            -- Фильтр: только буферы, чей путь начинается с текущей cwd.
-            -- cwd Neovim — стабильнее vim.fs.root, потому что не зависит
-            -- от наличия .git в домашней папке. + проверки buftype/buflisted
-            -- отсекают служебные буферы (neo-tree, terminal, mini.icons).
-            filter = function(bufnr)
-              if not vim.bo[bufnr].buflisted then return false end
-              if vim.bo[bufnr].buftype ~= "" then return false end
-
-              local bufname = vim.api.nvim_buf_get_name(bufnr)
-              if bufname == "" then return false end
-
-              local cwd = vim.fn.getcwd()
-              if not cwd:match("/$") then cwd = cwd .. "/" end
-
-              return vim.startswith(bufname, cwd)
-            end,
+            -- Фильтра по проекту здесь нет: у компонента buffers такой опции
+            -- не существует. Буферы чужих проектов закрываются при смене cwd
+            -- (util/workspace_autocmds.lua), так что в полосе только свои.
             -- ── Спец-имена для всё-таки попавших buftype-буферов ─────
             filetype_names = {
               TelescopePrompt  = "Telescope",

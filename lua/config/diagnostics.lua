@@ -9,10 +9,10 @@
 -- ──────────────────────────────────────────────────────────────────────
 -- Иконки уровней (signs в gutter — узкая колонка слева от номера строки).
 -- Глифы записаны через "\u{XXXX}" (Lua escape для Unicode code-point),
---   "\u{ea87}"  = (Nerd Font: cod-error)
---   "\u{ea6c}"  = (Nerd Font: cod-warning)
---   "\u{ea74}"  = (Nerd Font: cod-info)
---   "\u{f0166}" = (Nerd Font: md-lightbulb)
+--   "\u{ea87}"  =  (Nerd Font: cod-error)
+--   "\u{ea6c}"  =  (Nerd Font: cod-warning)
+--   "\u{ea74}"  =  (Nerd Font: cod-info)
+--   "\u{f0166}" = 󰅦 (Nerd Font: md-lightbulb)
 -- ──────────────────────────────────────────────────────────────────────
 local signs = {
   [vim.diagnostic.severity.ERROR] = "\u{ea87}",
@@ -41,7 +41,7 @@ vim.diagnostic.config({
   -- Подчёркивание под проблемным куском кода ("волнистая линия").
   underline = true,
 
-  -- Виртуальный текст ВЫКЛЮЧЕН: 
+  -- Виртуальный текст ВЫКЛЮЧЕН:
   virtual_text = false,
 
   -- Floating-окно: единый стиль для авто-popup'а на CursorHold и для
@@ -83,18 +83,40 @@ vim.diagnostic.config({
 --
 -- Включаем И для нормального, И для insert-режима
 -- ──────────────────────────────────────────────────────────────────────
+
+-- Плавающие окна, которые НЕ должны блокировать popup диагностики:
+-- это фоновые/декоративные окна, с которыми он не конфликтует.
+local ignored_float_filetypes = {
+  snacks_notif = true,    -- тосты snacks.notifier
+  fidget = true,          -- прогресс LSP (fidget.nvim)
+  ["smear-cursor"] = true, -- анимация курсора: плагин держит 5 float-окон
+                           -- постоянно открытыми (узнали через nvim_list_wins)
+}
+
+-- true, если открыто плавающее окно, поверх которого popup показывать
+-- нельзя (hover от K, signature help, меню автодополнения и т.п.).
+local function blocking_float_open()
+  for _, winid in ipairs(vim.api.nvim_list_wins()) do
+    local cfg = vim.api.nvim_win_get_config(winid)
+    if cfg.relative ~= "" then
+      local ft = vim.bo[vim.api.nvim_win_get_buf(winid)].filetype
+      if not ignored_float_filetypes[ft] then
+        return true
+      end
+    end
+  end
+  return false
+end
+
 local diag_hover_group = vim.api.nvim_create_augroup("user-diagnostic-hover", { clear = true })
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   group = diag_hover_group,
   callback = function()
     -- Не открывать popup, если уже открыт какой-то floating-window
     -- (например, наш hover от K). Иначе они будут накладываться и
-    -- мешать друг другу.
-    for _, winid in ipairs(vim.api.nvim_list_wins()) do
-      local cfg = vim.api.nvim_win_get_config(winid)
-      if cfg.relative ~= "" then
-        return
-      end
+    -- мешать друг другу. Тосты и fidget в счёт не идут.
+    if blocking_float_open() then
+      return
     end
     vim.diagnostic.open_float(nil, { focus = false })
   end,

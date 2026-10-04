@@ -130,7 +130,7 @@ return {
 
   -- =========================================================================
   -- nvim-treesitter-textobjects (тоже ветка main).
-  -- Даёт vaf/vif, dia, ]f/[f, ]c/[c.
+  -- Даёт vaf/vif, dia, ]f/[f, ]a/[a.
   -- =========================================================================
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
@@ -179,7 +179,8 @@ return {
       map_select("a/", "@comment.outer")
       map_select("i/", "@comment.inner")
 
-      -- ── навигация по AST: ]f / [f к функциям, ]c / [c к классам ───────
+      -- ── навигация по AST: ]f / [f к функциям, ]a / [a к параметрам ────
+      -- (]c / [c намеренно не трогаем: это встроенная навигация по diff)
       local function map_move(lhs, dir, capture)
         vim.keymap.set({ "n", "x", "o" }, lhs, function()
           move["goto_" .. dir](capture, "textobjects")
@@ -188,8 +189,6 @@ return {
 
       map_move("]f", "next_start",     "@function.outer")
       map_move("[f", "previous_start", "@function.outer")
-      map_move("]c", "next_start",     "@class.outer")
-      map_move("[c", "previous_start", "@class.outer")
       map_move("]a", "next_start",     "@parameter.inner")
       map_move("[a", "previous_start", "@parameter.inner")
     end,

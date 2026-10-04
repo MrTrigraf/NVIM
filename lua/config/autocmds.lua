@@ -139,7 +139,13 @@ autocmd("VimResized", {
     if dap and dap.session() then
       return
     end
+    -- tabdo заканчивает на последней вкладке, поэтому запоминаем текущую
+    -- и возвращаемся на неё.
+    local current_tab = vim.api.nvim_get_current_tabpage()
     vim.cmd("tabdo wincmd =")
+    if vim.api.nvim_tabpage_is_valid(current_tab) then
+      vim.api.nvim_set_current_tabpage(current_tab)
+    end
   end,
 })
 
@@ -170,7 +176,7 @@ autocmd("FileType", {
         "help", "man", "qf", "checkhealth", "lspinfo", "notify",
     "startuptime", "tsplayground", "PlenaryTestPopup", "neotest-output",
     "neotest-summary", "neotest-output-panel",
-    "snacks_dashboard", 
+    "snacks_dashboard",
   },
   callback = function(args)
     vim.bo[args.buf].buflisted = false

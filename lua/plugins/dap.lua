@@ -155,9 +155,9 @@ return {
 
     -- ── Приведение окон dap-ui в порядок ─────────────────────────────
     -- Делает три вещи для каждого окна dap-ui:
-    --   1. гасит лишние колонки — nvim-ufo включает foldcolumn
-    --      глобально, а statuscol вешает свою statuscolumn на все окна;
-    --      в панелях dap-ui это даёт лишние маркеры поверх родных;
+    --   1. гасит лишнюю колонку fold — nvim-ufo включает foldcolumn
+    --      глобально, и в панелях dap-ui это даёт лишние маркеры
+    --      поверх родных;
     --   2. возвращает панели её заданный размер (40 знаков / 10 строк);
     --   3. ставит winfixwidth/winfixheight — это опция окна "держать
     --      размер фиксированным": Neovim перестаёт масштабировать такое
@@ -172,9 +172,8 @@ return {
           local is_right = dapui_right[ft]
           local is_bottom = dapui_bottom[ft]
           if is_right or is_bottom then
-            -- общая чистка лишних колонок
+            -- statuscolumn не трогаем: эти окна уже в ft_ignore у statuscol.
             vim.api.nvim_set_option_value("foldcolumn", "0", { win = win })
-            vim.api.nvim_set_option_value("statuscolumn", "", { win = win })
           end
           if is_right then
             -- pcall — раскладка может на миг не позволять ресайз
