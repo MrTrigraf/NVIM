@@ -102,6 +102,17 @@ return {
                   desc = { path, hl = "MyDashboardPath" },
                   -- Цифра остаётся справа, под буквами n r s q
                   key = tostring(i),
+                  -- action живёт в самом item'е: snacks пересоздаёт кнопки при каждой
+                  -- перерисовке (ресайз), поэтому отдельный keymap терялся.
+                  action = function(self)
+                    -- pcall: в float-режиме snacks закрывает окно до action,
+                    -- и буфер уже может быть удалён.
+                    if self.buf and vim.api.nvim_buf_is_valid(self.buf) then
+                      pcall(vim.cmd, "bdelete " .. self.buf)
+                    end
+                    vim.cmd("cd " .. vim.fn.fnameescape(entry.path))
+                    vim.notify("Открыт проект: " .. entry.name, vim.log.levels.INFO)
+                  end,
                   padding = i == shown and 1 or 0,
                 })
               end
@@ -164,6 +175,17 @@ return {
       vim.api.nvim_set_hl(0, "MyDashboardProjectName", { fg = "#c4b28a", bold = true })
       require("snacks").setup(opts)
 
+      -- snacks не проверяет окно дашборда в WinResized -> "Invalid window id".
+      -- Если окна нет, отдаём прошлый размер: deep_equal решит "не менялось".
+      local dashboard_class = Snacks.dashboard.Dashboard
+      local orig_size = dashboard_class.size
+      function dashboard_class:size()
+        if not (self.win and vim.api.nvim_win_is_valid(self.win)) then
+          return self._size or { width = vim.o.columns, height = vim.o.lines }
+        end
+        return orig_size(self)
+      end
+
       local function cursor_blend(value)
         local hl = vim.api.nvim_get_hl(0, { name = "Cursor", create = true })
         hl.blend = value
@@ -177,27 +199,12 @@ return {
       -- Вход в дашборд – выключаем анимацию (один раз)
       vim.api.nvim_create_autocmd("User", {
         pattern = "SnacksDashboardOpened",
-        callback = function(event)
+        callback = function()
           if smear_enabled then
             require("smear_cursor").toggle(false)
             smear_enabled = false
           end
           cursor_blend(100)
-
-          local pinned = require("util.pinned_projects").list()
-          for i = 1, math.min(9, #pinned) do
-            local entry = pinned[i]
-            vim.keymap.set("n", tostring(i), function()
-              local dash_buf = vim.api.nvim_get_current_buf()
-              vim.cmd("bdelete " .. dash_buf)
-              vim.cmd("cd " .. vim.fn.fnameescape(entry.path))
-              vim.notify("Открыт проект: " .. entry.name, vim.log.levels.INFO)
-            end, {
-              buffer = event.buf,
-              desc = "Open pinned project " .. i,
-              nowait = true,
-            })
-          end
         end,
       })
 
