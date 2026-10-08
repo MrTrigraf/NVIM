@@ -5,9 +5,6 @@ return {
     "natecraddock/workspaces.nvim",
     -- VeryLazy: грузим после UI, чтобы не блокировать стартап.
     event = "VeryLazy",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    },
     opts = {
       -- Файл хранения. По умолчанию = ~/.local/share/nvim/workspaces.
       -- Указываем явно, чтобы не было сюрпризов при смене XDG-переменных.
@@ -34,10 +31,5 @@ return {
       -- notify_info: показывать тосты "Workspace foo added/removed/opened".
       notify_info = false,
     },
-    config = function(_, opts)
-      require("workspaces").setup(opts)
-      -- Подключаем telescope-расширение. pcall — на случай гонки загрузки telescope.
-      pcall(require("telescope").load_extension, "workspaces")
-    end,
   },
 }

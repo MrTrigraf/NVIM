@@ -2,10 +2,9 @@
 -- Утилиты для работы с workspaces.nvim:
 --   * автогенерация имён с дисамбигуацией конфликтов
 --   * автоочистка мёртвых записей (несуществующих папок)
---   * закрытие буферов вне заданного пути (политика буферов 3)
---   * активное переключение проекта (только :cd; побочные эффекты — в
---     autocmd DirChanged в workspace_autocmds.lua)
 --   * enforce_limit для удержания истории workspaces в пределах N записей
+-- Переключение проекта (:cd) и закрытие чужих буферов живут в
+-- workspace_autocmds.lua (реакция на DirChanged).
 local M = {}
 
 -- ---------------------------------------------------------------------------
@@ -48,26 +47,23 @@ function M.gen_name(path)
 end
 
 -- ---------------------------------------------------------------------------
--- gen_unique_name(path) → string
--- Возвращает имя, гарантированно не конфликтующее с уже зарегистрированными.
+-- unique_name(path, entries) → string
+-- Имя, не конфликтующее с именами из entries (список { name, path }).
+-- Общая логика для workspaces.nvim и pinned_projects.
 -- Стратегия:
 --   1. basename                       (foo)
 --   2. basename + parent in parens    (foo (personal))
 --   3. basename + 2 ancestors         (foo (work/personal))
 --   4. fallback с числовым суффиксом  (foo #2)
 -- ---------------------------------------------------------------------------
-function M.gen_unique_name(path)
+function M.unique_name(path, entries)
   path = path:gsub("/$", "")
-  local plugin = ws()
-  if not plugin then
-    return M.gen_name(path)
-  end
 
   -- Собираем set уже занятых имён.
   -- Исключаем запись, у которой path совпадает с нашим (ре-регистрация —
   -- не конфликт, мы хотим сохранить текущее имя для этой папки).
   local taken = {}
-  for _, entry in ipairs(plugin.get() or {}) do
+  for _, entry in ipairs(entries or {}) do
     if entry.path ~= path then
       taken[entry.name] = true
     end
@@ -113,6 +109,19 @@ function M.gen_unique_name(path)
 end
 
 -- ---------------------------------------------------------------------------
+-- gen_unique_name(path) → string
+-- Уникальное имя относительно записей workspaces.nvim.
+-- ---------------------------------------------------------------------------
+function M.gen_unique_name(path)
+  path = path:gsub("/$", "")
+  local plugin = ws()
+  if not plugin then
+    return M.gen_name(path)
+  end
+  return M.unique_name(path, plugin.get())
+end
+
+-- ---------------------------------------------------------------------------
 -- prune_dead() → number
 -- Удаляет из workspaces.nvim все записи, чьи пути не существуют на диске.
 -- Возвращает количество удалённых.
@@ -137,65 +146,6 @@ function M.prune_dead()
   end
 
   return #to_remove
-end
-
--- ---------------------------------------------------------------------------
--- close_buffers_outside(path) → number
--- Закрывает loaded+listed буферы (обычные файлы), чьи имена не начинаются
--- с переданного пути. Служебные буферы (terminal, neo-tree, telescope,
--- lazy popup) пропускаются — у них либо buflisted=false, либо buftype≠"".
--- Несохранённые буферы НЕ закрываются (force=false → pcall вернёт ошибку,
--- которую мы проглатываем). Возвращает количество фактически закрытых.
--- ---------------------------------------------------------------------------
-function M.close_buffers_outside(path)
-  path = vim.fn.fnamemodify(path, ":p"):gsub("/$", "")
-  local target_prefix = path .. "/"
-  local closed = 0
-
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(bufnr)
-        and vim.bo[bufnr].buflisted
-        and vim.bo[bufnr].buftype == ""
-    then
-      local bufname = vim.api.nvim_buf_get_name(bufnr)
-      if bufname ~= "" and not vim.startswith(bufname, target_prefix) then
-        local ok = pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
-        if ok then
-          closed = closed + 1
-        end
-      end
-    end
-  end
-
-  return closed
-end
-
--- ---------------------------------------------------------------------------
--- switch(path) → bool
--- Активное переключение в проект. Делает ТОЛЬКО :cd.
--- Все побочные эффекты — закрытие буферов вне cwd, обновление MRU в
--- workspaces.nvim, рефреш neo-tree — выполняются реактивно из autocmd
--- DirChanged в workspace_autocmds.lua.
---
--- Такая разделённая архитектура даёт одинаковую реакцию на любой триггер
--- смены cwd: на switch() из пикера, на цифру с дашборда, на ручной :cd,
--- на :cd из автоматизации (плагины и т.п.).
---
--- Возвращает true при успехе, false если путь не существует.
--- ---------------------------------------------------------------------------
-function M.switch(path)
-  path = vim.fn.fnamemodify(path, ":p"):gsub("/$", "")
-
-  if vim.fn.isdirectory(path) == 0 then
-    vim.notify(
-      string.format("workspace_helpers.switch: путь не существует: %s", path),
-      vim.log.levels.ERROR
-    )
-    return false
-  end
-
-  vim.cmd("cd " .. vim.fn.fnameescape(path))
-  return true
 end
 
 -- ---------------------------------------------------------------------------

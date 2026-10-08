@@ -19,9 +19,6 @@ return {
     "folke/trouble.nvim",
     cmd = "Trouble",
     opts = {
-      -- Использовать новые иконки из mini.icons (у нас они стоят).
-      use_diagnostic_signs = true,
-
       -- Маленький UX: фокус сразу переходит в trouble-окно при открытии.
       focus = true,
 

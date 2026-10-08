@@ -150,10 +150,8 @@ function M.pick_pinned()
     }),
     sorter = conf.generic_sorter({}),
     attach_mappings = function(prompt_bufnr, map)
-      -- <CR>: cd в выбранный проект.
-      -- Не используем helpers.switch() — он подключается в шаге 20 вместе
-      -- с DirChanged-autocmd (политика буферов 3 + neo-tree refresh).
-      -- Пока — простой :cd, как у pick_workspaces.
+      -- <CR>: cd в выбранный проект. Закрытие чужих буферов и рефреш
+      -- neo-tree делает DirChanged-autocmd в workspace_autocmds.lua.
       actions.select_default:replace(function()
         local entry = action_state.get_selected_entry()
         actions.close(prompt_bufnr)

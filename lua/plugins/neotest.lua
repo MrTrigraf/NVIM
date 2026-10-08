@@ -8,7 +8,6 @@ return {
     -- библиотеки-основа, на которых держится neotest
     "nvim-lua/plenary.nvim",      -- утилиты (уже стоит как зависимость telescope)
     "nvim-neotest/nvim-nio",      -- асинхронный I/O (уже стоит как зависимость dap-ui)
-    "antoinemadec/FixCursorHold.nvim", -- стабилизирует событие CursorHold для neotest
     -- адаптер под Go: учит neotest запускать `go test`
     "fredrikaverpil/neotest-golang",
   },

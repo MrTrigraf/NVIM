@@ -17,7 +17,6 @@ return {
     end,
 
     keys = {
-      { "<leader>r", group = "http" },
       { "<leader>rr", function() require("kulala").run() end,              desc = "HTTP: run request under cursor" },
       { "<leader>ra", function() require("kulala").run_all() end,          desc = "HTTP: run all requests in file" },
       { "<leader>rl", function() require("kulala").replay() end,           desc = "HTTP: replay last request" },

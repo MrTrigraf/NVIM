@@ -17,7 +17,7 @@ local map = vim.keymap.set
 -- ──────────────────────────────────────────────────────────────────────
 -- Перезагрузка конфига без перезапуска Neovim
 -- ──────────────────────────────────────────────────────────────────────
--- <leader>R — повторно подгрузить options/keymaps/autocmds. 
+-- <leader>R — повторно подгрузить options/keymaps/autocmds.
 --
 -- ВАЖНО: это работает только для опций, биндингов и автокоманд. Правки
 -- в init.lua или lazy.lua, а также установка/удаление плагинов
@@ -128,8 +128,17 @@ map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 map("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 map("n", "<S-l>", "<cmd>bnext<CR>",     { desc = "Next buffer" })
 
--- <leader>bd — закрыть текущий буфер, не закрывая окно.
-map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
+-- Закрытие буферов через Snacks.bufdelete: в отличие от :bdelete он не
+-- закрывает окно, когда закрывается последний буфер.
+map("n", "<leader>bd", function() require("snacks").bufdelete() end,       { desc = "Delete buffer" })
+map("n", "<leader>bo", function() require("snacks").bufdelete.other() end, { desc = "Delete other buffers" })
+
+-- <leader>bb — вернуться к предыдущему буферу (как Ctrl+Tab в VS Code).
+map("n", "<leader>bb", "<cmd>buffer #<CR>", { desc = "Switch to other buffer" })
+
+-- ]b / [b — следующий / предыдущий буфер (то же, что <S-l> / <S-h>).
+map("n", "]b", "<cmd>bnext<CR>",     { desc = "Next buffer" })
+map("n", "[b", "<cmd>bprevious<CR>", { desc = "Prev buffer" })
 
 -- ──────────────────────────────────────────────────────────────────────
 -- Терминал-режим

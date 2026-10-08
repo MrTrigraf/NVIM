@@ -16,18 +16,8 @@ return {
       end
     end,
   },
-  -- Плагин 2: nvim-web-devicons (fallback)
-  {
-    "nvim-tree/nvim-web-devicons",
-    lazy = true,
-    opts = {
-      color_icons = true,
-      default = true,
-      strict = true,
-    },
-  },
 
-  -- Плагин 3: which-key
+  -- Плагин 2: which-key
   {
     "folke/which-key.nvim",
     event = "VeryLazy",           -- грузится сразу после старта, но не блокируя его
@@ -84,7 +74,7 @@ return {
     {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-mini/mini.icons" },
     opts = {
       options = {
         -- Тема задаётся в config, чтобы использовать встроенные цвета kanagawa-paper.

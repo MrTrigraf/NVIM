@@ -96,7 +96,7 @@ return {
   -- Аналог стандартного автозакрытия скобок в VS Code.
   -- ==========================================================================
   {
-    "echasnovski/mini.pairs",
+    "nvim-mini/mini.pairs",
     event = "InsertEnter",                 -- нужен только в режиме вставки
     config = function()
       require("mini.pairs").setup()

@@ -7,7 +7,7 @@
 return {
   {
     "thesimonho/kanagawa-paper.nvim",
-    
+
     priority = 1000,
     lazy = false,
 
@@ -16,7 +16,6 @@ return {
 
       plugins = {
         aerial            = true,
-        bufferline        = true,
         grug_far          = true,
         indent_blankline  = true,
         lazy              = true,
@@ -61,8 +60,8 @@ return {
           FloatTitle                                = { bg = theme.ui.bg_dim, fg = theme.syn.special1, bold = true },
           FloatFooter                               = { bg = theme.ui.bg_dim, fg = theme.ui.fg_dim },
 
-        
-          -- Telescope 
+
+          -- Telescope
           -- Фон (прозрачный)
           TelescopeNormal                           = { bg = "none", fg = theme.ui.fg },
           TelescopePromptNormal                     = { bg = "none" },
@@ -78,7 +77,7 @@ return {
           TelescopeResultsTitle                     = { bg = "none", fg = theme.syn.special1, bold = true },   -- оранж
           TelescopePreviewTitle                     = { bg = "none", fg = palette.oniViolet, bold = true },    -- фиолет
           TelescopeTitle                            = { bg = "none", fg = theme.syn.special1, bold = true },
-          
+
           -- render-markdown.nvim: цвета заголовков H1..H6.
           RenderMarkdownH1Bg                        = { bg = palette.waveBlue1 },
           RenderMarkdownH2Bg                        = { bg = palette.winterYellow },
@@ -209,7 +208,7 @@ return {
           ["@lsp.type.property"]                    = { fg = theme.syn.identifier },
           ["@lsp.type.namespace"]                   = { fg = theme.syn.identifier, italic = true },
           ["@module"]                               = { fg = theme.syn.identifier, italic = true },
-          
+
           -- Builtins (nil, iota)
           ["@constant.builtin"]                     = { fg = theme.syn.constant },
           ["@lsp.typemod.variable.defaultLibrary"]  = { fg = theme.syn.constant },

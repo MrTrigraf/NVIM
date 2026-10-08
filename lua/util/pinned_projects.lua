@@ -25,47 +25,9 @@ local function now_iso()
   return os.date("!%Y-%m-%dT%H:%M:%SZ")
 end
 
--- Базовое имя из пути с учётом спецслучаев (root, home).
-local function basename_for(path)
-  local home = vim.fn.expand("~"):gsub("/$", "")
-  if path == home then return "home" end
-  if path == "" or path == "/" then return "root" end
-  local n = vim.fn.fnamemodify(path, ":t")
-  return (n ~= "" and n) or "root"
-end
-
--- Уникальное имя в рамках pinned-листа.
--- Стратегия идентична gen_unique_name из workspace_helpers, но проверка
--- против pinned-БД (не против workspaces.nvim).
-local function gen_unique_name(path, list)
-  local taken = {}
-  for _, e in ipairs(list) do
-    if e.path ~= path then taken[e.name] = true end
-  end
-
-  local base = basename_for(path)
-  if not taken[base] then return base end
-
-  local parent = vim.fn.fnamemodify(path, ":h:t")
-  if parent ~= "" and parent ~= "." and parent ~= "/" then
-    local with_parent = string.format("%s (%s)", base, parent)
-    if not taken[with_parent] then return with_parent end
-
-    local grandparent = vim.fn.fnamemodify(path, ":h:h:t")
-    if grandparent ~= "" and grandparent ~= "." and grandparent ~= "/" then
-      local with_two = string.format("%s (%s/%s)", base, grandparent, parent)
-      if not taken[with_two] then return with_two end
-    end
-  end
-
-  local n = 2
-  while true do
-    local cand = string.format("%s #%d", base, n)
-    if not taken[cand] then return cand end
-    n = n + 1
-    if n > 100 then return base .. "_" .. tostring(vim.loop.now()) end
-  end
-end
+-- Уникальное имя в рамках pinned-листа: общая логика с workspaces живёт
+-- в workspace_helpers (там же gen_name со спецслучаями root/home).
+local helpers = require("util.workspace_helpers")
 
 -- ---------------------------------------------------------------------------
 -- Public API
@@ -143,7 +105,7 @@ function M.add(path, name)
     if e.path == p then return nil end
   end
 
-  local entry_name = name and name ~= "" and name or gen_unique_name(p, list)
+  local entry_name = name and name ~= "" and name or helpers.unique_name(p, list)
   local entry = { path = p, name = entry_name, pinned_at = now_iso() }
   -- Новые записи — в начало списка (новейшее сверху).
   table.insert(list, 1, entry)

@@ -47,7 +47,7 @@ return {
     ft = { "markdown" },
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
-      "echasnovski/mini.icons",
+      "nvim-mini/mini.icons",
     },
     opts = {
       render_modes = { "n", "c", "t" },
@@ -111,7 +111,7 @@ return {
   -- скролл — snacks.scroll.
   -- ==========================================================================
   {
-    "echasnovski/mini.animate",
+    "nvim-mini/mini.animate",
     event = "VeryLazy",
     opts = function()
       local animate = require("mini.animate")
