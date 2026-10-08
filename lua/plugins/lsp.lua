@@ -25,6 +25,15 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     dependencies = { "mason-org/mason.nvim" },
     event = "VimEnter",
+    -- cmd нужен для bootstrap.sh: в --headless команда "+MasonToolsInstallSync"
+    -- выполняется раньше VimEnter, и без этого списка её ещё не существует.
+    cmd = {
+      "MasonToolsInstall",
+      "MasonToolsInstallSync",
+      "MasonToolsUpdate",
+      "MasonToolsUpdateSync",
+      "MasonToolsClean",
+    },
     opts = {
       ensure_installed = {
         -- LSP-серверы

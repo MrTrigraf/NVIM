@@ -45,11 +45,11 @@ return {
     -- ────────────────────────────────────────────────────────────────
     -- BufReadPost — при открытии файла (сразу видно проблемы).
     -- BufWritePost — после сохранения (основной триггер).
-    -- InsertLeave — после выхода из режима вставки (свежо, но не
-    --   дёргает линтер на каждый символ — golangci-lint тяжёлый,
-    --   он под капотом компилирует пакет).
+    -- InsertLeave НЕ используем: golangci-lint читает файл с диска, а не
+    -- буфер, поэтому до сохранения видит старый код, зря грузит процессор
+    -- (компилирует пакет) и может сдвигать подсветку на правленых строках.
     local lint_augroup = vim.api.nvim_create_augroup("user-nvim-lint", { clear = true })
-    vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost", "InsertLeave" }, {
+    vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
       group = lint_augroup,
       callback = function()
         -- try_lint без аргументов — запускает линтеры из linters_by_ft

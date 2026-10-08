@@ -110,8 +110,8 @@ return {
           end)
 
           -- Folds от treesitter (fallback для nvim-ufo).
-          vim.wo.foldmethod = "expr"
-          vim.wo.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
+          -- Фолды здесь НЕ настраиваем: ими целиком управляет nvim-ufo
+          -- (см. navigation.lua), иначе две системы перебивают друг друга.
         end,
       })
 

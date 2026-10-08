@@ -233,7 +233,7 @@ mv ~/.cache/nvim ~/.cache/nvim.bak.(date +%Y%m%d)
 ```fish
 git clone https://github.com/MrTrigraf/NVIM.git ~/.config/nvim
 nvim --headless "+Lazy! sync" +qa
-nvim --headless "+MasonInstallAll" +qa
+nvim --headless "+MasonToolsInstallSync" +qa
 ```
 
 Первый запуск займёт 1–3 минуты: lazy.nvim скачает все плагины, treesitter скомпилирует парсеры, mason скачает LSP-серверы и линтеры.
@@ -266,7 +266,7 @@ nvim
 | `<Space>fb` | Переключить буфер | `Ctrl+Tab` |
 | `<Space>e` | Открыть/закрыть neo-tree | `Ctrl+B` |
 | `<Space>sr` | Find & replace (grug-far) | `Ctrl+Shift+H` |
-| `<Space>cs` | Symbol outline (aerial) | `Ctrl+Shift+O` |
+| `<Space>o` | Symbol outline (aerial) | `Ctrl+Shift+O` |
 | `<Space>cf` | Форматировать буфер | `Shift+Alt+F` |
 
 ### LSP

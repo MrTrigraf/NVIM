@@ -201,7 +201,7 @@ return {
         pattern = "SnacksDashboardOpened",
         callback = function()
           if smear_enabled then
-            require("smear_cursor").toggle(false)
+            require("smear_cursor").enabled = false
             smear_enabled = false
           end
           cursor_blend(100)
@@ -212,7 +212,7 @@ return {
       vim.api.nvim_create_autocmd("BufEnter", {
         callback = function()
           if not smear_enabled and vim.bo.filetype ~= "snacks_dashboard" then
-            require("smear_cursor").toggle(true)
+            require("smear_cursor").enabled = true
             smear_enabled = true
             cursor_blend(0)
           end

@@ -230,7 +230,7 @@ mv ~/.cache/nvim ~/.cache/nvim.bak.$(date +%Y%m%d)
 ```bash
 git clone https://github.com/MrTrigraf/NVIM.git ~/.config/nvim
 nvim --headless "+Lazy! sync" +qa
-nvim --headless "+MasonInstallAll" +qa
+nvim --headless "+MasonToolsInstallSync" +qa
 ```
 
 The first launch takes 1–3 minutes: lazy.nvim downloads all plugins, treesitter compiles parsers, mason downloads LSP servers and linters.
@@ -263,7 +263,7 @@ Below — a digest of the most frequently used keys. For the full layout (~250 b
 | `<Space>fb` | Switch buffer | `Ctrl+Tab` |
 | `<Space>e` | Toggle neo-tree | `Ctrl+B` |
 | `<Space>sr` | Find & replace (grug-far) | `Ctrl+Shift+H` |
-| `<Space>cs` | Symbol outline (aerial) | `Ctrl+Shift+O` |
+| `<Space>o` | Symbol outline (aerial) | `Ctrl+Shift+O` |
 | `<Space>cf` | Format buffer | `Shift+Alt+F` |
 
 ### LSP

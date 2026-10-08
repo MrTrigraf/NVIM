@@ -194,8 +194,11 @@ return {
             },
           })
           -- toggle мог как открыть окно, так и спрятать его. Запускаем air
-          -- только если окно сейчас видимо (term не nil и буфер показан).
-          if term and term.buf and vim.api.nvim_buf_is_valid(term.buf) then
+          -- только если окно сейчас видимо: буфер терминала показан в окне.
+          -- Одной проверки "буфер валиден" мало: у спрятанного терминала
+          -- буфер жив, и air уходил бы в скрытый fish.
+          if term and term.buf and vim.api.nvim_buf_is_valid(term.buf)
+            and vim.fn.bufwinid(term.buf) ~= -1 then
             local channel = vim.b[term.buf].terminal_job_id
             if channel then
               vim.api.nvim_chan_send(channel, "air\n")
