@@ -17,7 +17,7 @@
 --   gf  — DiffviewFileHistory % (история текущего файла)
 --   gF  — DiffviewFileHistory  (история всего репо)
 --   gh* — операции с hunk'ами (gitsigns):
---         ghp превью, ghs stage, ghr reset, ghu undo-stage,
+--         ghp превью, ghs stage/unstage (toggle), ghr reset,
 --         ghS stage-buffer, ghR reset-buffer,
 --         ghd diff-vs-index, ghD diff-vs-HEAD, ghb full-blame
 --
@@ -97,9 +97,8 @@ return {
 
         -- Операции с hunk'ами под префиксом <leader>gh* (h = hunk).
         map("n", "<leader>ghp", gs.preview_hunk,    "Hunk: preview")
-        map("n", "<leader>ghs", gs.stage_hunk,      "Hunk: stage")
+        map("n", "<leader>ghs", gs.stage_hunk,      "Hunk: stage / unstage (toggle)")
         map("n", "<leader>ghr", gs.reset_hunk,      "Hunk: reset (discard change)")
-        map("n", "<leader>ghu", gs.undo_stage_hunk, "Hunk: undo stage")
         map("n", "<leader>ghS", gs.stage_buffer,    "Hunk: stage whole buffer")
         map("n", "<leader>ghR", gs.reset_buffer,    "Hunk: reset whole buffer")
         map("n", "<leader>ghd", gs.diffthis,        "Hunk: diff against index")

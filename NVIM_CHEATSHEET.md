@@ -839,9 +839,8 @@ Bufferline в текущем конфиге **отключён** (`enabled = fal
 |---|---|---|
 | `]h` / `[h` | следующий / предыдущий hunk | навигация в git-панели |
 | `<leader>ghp` | превью hunk'а во всплывающем окне | наведение на ⏵ слева |
-| `<leader>ghs` | **stage hunk** (= `git add` этого куска) | `+` на hunk'е |
+| `<leader>ghs` | **stage / unstage hunk** (переключатель: повторное нажатие на уже застейдженном куске снимает stage) | `+` на hunk'е |
 | `<leader>ghr` | **reset hunk** (откатить изменение) | ↶ Revert Change |
-| `<leader>ghu` | undo последнего stage | — |
 | `<leader>ghS` | stage **всего файла** (заглавная S) | Stage Changes |
 | `<leader>ghR` | reset **всего файла** (заглавная R) | Discard Changes |
 | `<leader>ghd` | diff файла против индекса | — |

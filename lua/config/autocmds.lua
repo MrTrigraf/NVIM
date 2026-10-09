@@ -21,7 +21,7 @@ autocmd("TextYankPost", {
   group = group,
   desc = "Highlight yanked text",
   callback = function()
-    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+    vim.hl.on_yank({ higroup = "IncSearch", timeout = 200 })
   end,
 })
 
@@ -245,8 +245,13 @@ autocmd("User", {
   pattern = "PersistenceLoadPost",
   desc = "Restore Cursor highlight after session load",
   callback = function()
-    vim.api.nvim_set_hl(0, "Cursor",  { blend = 0 })
-    vim.api.nvim_set_hl(0, "lCursor", { blend = 0 })
+    -- nvim_set_hl заменяет группу целиком, поэтому сначала читаем текущие
+    -- цвета и меняем только blend (так же сделано в dashboard.lua).
+    for _, name in ipairs({ "Cursor", "lCursor" }) do
+      local hl = vim.api.nvim_get_hl(0, { name = name, create = true })
+      hl.blend = 0
+      vim.api.nvim_set_hl(0, name, hl)
+    end
   end,
 })
 

@@ -150,7 +150,6 @@ opt.fillchars = {
 }
 
 -- Сворачивание (folding) пока выключаем — настроим через nvim-ufo
-opt.foldenable = false
 
 -- Отключение неиспользуемых провайдеров
 vim.g.loaded_python3_provider = 0
