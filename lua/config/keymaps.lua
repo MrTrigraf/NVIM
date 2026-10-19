@@ -38,9 +38,9 @@ end, { desc = "Reload config" })
 -- Сохранение и выход
 -- ──────────────────────────────────────────────────────────────────────
 -- <C-s> — сохранить текущий буфер. Привычка из VS Code.
--- Работает в Normal и Insert режимах. В Insert после сохранения
--- остаёмся в Insert (через <Esc>...gi возвращаемся к курсору).
-map({ "n", "i", "v" }, "<C-s>", "<Esc>:w<CR>", { desc = "Save file" })
+-- Работает в Normal, Insert и Visual. <Cmd> не меняет режим и не двигает
+-- курсор, поэтому в Insert после сохранения можно сразу печатать дальше.
+map({ "n", "i", "v" }, "<C-s>", "<Cmd>w<CR>", { desc = "Save file" })
 
 -- <leader>qq — закрыть текущее окно (без сохранения предупредит).
 --
@@ -86,10 +86,6 @@ map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 -- у самого края экрана. zz после — центрирует.
 map("n", "n", "nzzzv", { desc = "Next search match (centered)" })
 map("n", "N", "Nzzzv", { desc = "Prev search match (centered)" })
-
--- Центрировать экран после <C-d>/<C-u> (прокрутка на полстраницы).
-map("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
-map("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 
 -- ──────────────────────────────────────────────────────────────────────
 -- Редактирование

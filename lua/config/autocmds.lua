@@ -97,7 +97,17 @@ autocmd("BufWritePre", {
   group = group,
   desc = "Trim trailing whitespace on save",
   callback = function()
-    if vim.bo.filetype == "markdown" then
+    -- Не трогаем: markdown (два пробела в конце = перенос строки),
+    -- go (в сырых `строках` пробелы значимы, форматирует gofumpt),
+    -- yaml (в блоках | и > пробелы могут быть частью значения).
+    local skip = {
+      markdown = true,
+      go = true,
+      yaml = true,
+      ["yaml.docker-compose"] = true,
+      ["yaml.gitlab"] = true,
+    }
+    if skip[vim.bo.filetype] then
       return
     end
     local save = vim.fn.winsaveview()

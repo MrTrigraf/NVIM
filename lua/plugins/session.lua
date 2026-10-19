@@ -13,9 +13,10 @@ return {
     -- sessionoptions определяет, ЧТО именно попадает в сессию:
     -- буферы, текущая директория, свёртки кода, глобальные
     -- переменные, файлы справки, вкладки, размер и позиция окон,
-    -- терминалы, локальные опции окон.
+    -- локальные опции окон. Терминалы (terminal) не сохраняем: при
+    -- восстановлении они приходят пустыми, без запущенного процесса.
     vim.o.sessionoptions =
-      "buffers,curdir,folds,globals,help,tabpages,winsize,winpos,terminal,localoptions"
+      "buffers,curdir,folds,globals,help,tabpages,winsize,winpos,localoptions"
   end,
   -- Пустые opts = поведение по умолчанию. Файлы сессий хранятся в
   -- stdpath("state")/sessions/ — вне репозитория, в git не попадут.

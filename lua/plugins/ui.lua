@@ -150,7 +150,15 @@ return {
             },
           },
         },
-        lualine_x = { },
+        lualine_x = {
+          {
+            "diagnostics",
+            sources = { "nvim_diagnostic" },
+            sections = { "error", "warn" }, -- info и hint не считаем: шум
+            symbols = { error = "\u{ea87}", warn = "\u{ea6c}" }, -- те же иконки, что в gutter
+            update_in_insert = false,
+          },
+        },
         lualine_y = { "progress" },
         lualine_z = { "location" },
       },

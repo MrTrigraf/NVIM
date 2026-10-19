@@ -51,6 +51,8 @@ return {
         "goimports",
         "golangci-lint",
         "hadolint",
+        -- Утилиты
+        "gomodifytags",
       },
       auto_update  = false,
       run_on_start = true,
@@ -112,6 +114,21 @@ return {
     "b0o/SchemaStore.nvim",
     lazy    = true,
     version = false,
+  },
+
+  -- ────────────────────────────────────────────────────────────────────
+  -- lazydev.nvim: умная подгрузка типов Neovim и плагинов для lua_ls.
+  -- Только в .lua файлах.
+  -- ────────────────────────────────────────────────────────────────────
+  {
+    "folke/lazydev.nvim",
+    ft = "lua",
+    opts = {
+      library = {
+        -- Типы vim.uv подгружаются только когда в коде встречается vim.uv.
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
   },
 
   -- nvim-lspconfig + LspAttach + все серверы.
@@ -203,6 +220,32 @@ return {
               callback = vim.lsp.buf.clear_references,
             })
           end
+
+          -- ── Теги структур Go (gomodifytags) ──────────────────────
+          -- Курсор внутри структуры. Утилита правит файл на диске,
+          -- потом буфер перечитывается (:edit).
+          if client.name == "gopls" then
+            local function struct_tags(flag, tags)
+              return function()
+                vim.cmd("silent write")
+                -- Позиция курсора в байтах от начала файла (0-based).
+                local offset = vim.fn.line2byte(vim.fn.line(".")) + vim.fn.col(".") - 2
+                local out = vim.fn.system({
+                  "gomodifytags", "-file", vim.api.nvim_buf_get_name(bufnr),
+                  "-offset", tostring(offset), flag, tags,
+                  "-transform", "snakecase", "-w",
+                })
+                if vim.v.shell_error ~= 0 then
+                  vim.notify(vim.trim(out), vim.log.levels.ERROR)
+                  return
+                end
+                vim.cmd("edit")
+              end
+            end
+            map("n", "<leader>cj", struct_tags("-add-tags", "json"),       "Go: Add json tags to struct")
+            map("n", "<leader>cd", struct_tags("-add-tags", "db"),         "Go: Add db tags to struct")
+            map("n", "<leader>cx", struct_tags("-remove-tags", "json,db"), "Go: Remove json/db tags")
+          end
         end,
       })
 
@@ -232,6 +275,7 @@ return {
               nilness        = true,
               unusedwrite    = true,
               useany         = true,
+              ST1000         = false, -- «у пакета нет package-комментария»: шум
             },
             staticcheck = true,
             hints = {
@@ -267,6 +311,30 @@ return {
       -- ──────────────────────────────────────────────────────────────
       -- yamlls.
       -- ──────────────────────────────────────────────────────────────
+
+      -- Маски k8s-манифестов по имени файла: «<вид>.yaml», «*-<вид>.yaml»,
+      -- «*.<вид>.yaml». Склейки без разделителя (user_service.yaml, myservice.yaml)
+      -- не берём: так называют и обычные конфиги приложения.
+      local function k8s_kind_masks(kinds)
+        local masks = {}
+        for _, kind in ipairs(kinds) do
+          for _, pattern in ipairs({ "%s", "*-%s", "*.%s" }) do
+            table.insert(masks, pattern:format(kind) .. ".{yml,yaml}")
+          end
+        end
+        return masks
+      end
+
+      local k8s_masks = vim.list_extend({
+        "k8s/**/*.{yml,yaml}",
+        "kubernetes/**/*.{yml,yaml}",
+        "manifests/**/*.{yml,yaml}",
+        "kustomization.{yml,yaml}",
+      }, k8s_kind_masks({
+        "deployment", "statefulset", "daemonset",
+        "service", "ingress", "configmap", "pvc",
+      }))
+
       vim.lsp.config("yamlls", {
         filetypes    = { "yaml", "yaml.docker-compose", "yaml.gitlab" },
         root_markers = { ".git" },
@@ -279,19 +347,7 @@ return {
             schemas = vim.tbl_extend("force",
               require("schemastore").yaml.schemas(),
               {
-                kubernetes = {
-                  "k8s/**/*.{yml,yaml}",
-                  "kubernetes/**/*.{yml,yaml}",
-                  "manifests/**/*.{yml,yaml}",
-                  "kustomization.{yml,yaml}",
-                  "*deployment.{yml,yaml}",
-                  "*statefulset.{yml,yaml}",
-                  "*daemonset.{yml,yaml}",
-                  "*service.{yml,yaml}",
-                  "*ingress.{yml,yaml}",
-                  "*configmap.{yml,yaml}",
-                  "*pvc.{yml,yaml}",
-                },
+                kubernetes = k8s_masks,
                 ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
                   "compose.yml",
                   "compose.yaml",
@@ -370,11 +426,9 @@ return {
       -- ──────────────────────────────────────────────────────────────
       -- lua_ls (Lua language server).
       -- ──────────────────────────────────────────────────────────────
-      -- Знает Neovim API через workspace.library — даёт автокомплит
-      -- для vim.api.*, vim.keymap.*, vim.lsp.*, hover на функции
-      -- Neovim. Globals { "vim" } говорит серверу, что vim — известная
-      -- глобальная переменная (иначе будет warning на каждом
-      -- использовании).
+      -- Знание Neovim API (vim.api.*, vim.lsp.*, hover) и глобала vim
+      -- даёт lazydev.nvim (выше), поэтому workspace.library и
+      -- diagnostics.globals здесь не нужны.
       vim.lsp.config("lua_ls", {
         filetypes    = { "lua" },
         root_markers = { ".luarc.json", ".luarc.jsonc", ".stylua.toml", "stylua.toml", ".git" },
@@ -387,13 +441,6 @@ return {
             workspace = {
               -- Не сканировать сторонние библиотеки (slow, не нужно).
               checkThirdParty = false,
-              -- Подключить рантайм Neovim как библиотеку — даёт
-              -- автокомплит и hover на vim.* API.
-              library = vim.api.nvim_get_runtime_file("", true),
-            },
-            diagnostics = {
-              -- "vim" — известная глобальная переменная.
-              globals = { "vim" },
             },
             telemetry = { enable = false },
           },

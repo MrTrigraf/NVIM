@@ -75,6 +75,8 @@ return {
 
               local LIMIT = 6
               local NAME_WIDTH = 18
+              -- Ширина дашборда ~60: 5 (отступ) + 18 (имя) + путь + 2 (цифра) + запас.
+              local PATH_WIDTH = 32
               local shown = math.min(LIMIT, #pinned)
 
               for i = 1, shown do
@@ -88,12 +90,21 @@ return {
                   path = "~" .. path:sub(#home + 1)
                 end
 
-                local name = entry.name
-                if #name > NAME_WIDTH - 1 then
-                  name = name:sub(1, NAME_WIDTH - 2) .. "..."
+                -- Длинный путь режем с начала и оставляем хвост (в нём имя папки),
+                -- иначе строка выходит за ширину дашборда и сдвигает цифру.
+                if vim.fn.strchars(path) > PATH_WIDTH then
+                  path = "..." .. vim.fn.strcharpart(path, vim.fn.strchars(path) - (PATH_WIDTH - 3))
                 end
 
-                local padded_name = name .. string.rep(" ", NAME_WIDTH - vim.str_utfindex(name, "utf-32"))
+                -- Режем по символам (strcharpart), а не по байтам: иначе можно
+                -- разорвать UTF-8 символ посередине (кириллица, эмодзи).
+                local name = entry.name
+                if vim.fn.strchars(name) > NAME_WIDTH - 1 then
+                  name = vim.fn.strcharpart(name, 0, NAME_WIDTH - 4) .. "..."
+                end
+
+                local pad = math.max(0, NAME_WIDTH - vim.fn.strdisplaywidth(name))
+                local padded_name = name .. string.rep(" ", pad)
                 table.insert(items, {
                   indent = 5,
                   -- Название проекта теперь красится цветом, который был у пути (SnacksDashboardFooter)

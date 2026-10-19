@@ -37,6 +37,11 @@ require("lazy").setup({
   checker = {
     enabled = false,
   },
+  -- Не показывать тост «Config Change Detected» при каждом сохранении
+  -- файла в lua/plugins/ (сам детект изменений остаётся включённым).
+  change_detection = {
+    notify = false,
+  },
   rocks = {
     enabled = false,
   },

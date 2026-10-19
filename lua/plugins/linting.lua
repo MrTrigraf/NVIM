@@ -8,6 +8,10 @@
 return {
   "mfussenegger/nvim-lint",
   event = { "BufReadPre", "BufNewFile" },
+  -- Mason грузим раньше: он добавляет свой bin в PATH, а nvim-lint при
+  -- загрузке golangcilint один раз зовёт `golangci-lint version`. Без этого
+  -- при неудачном порядке загрузки аргументы пустые и линтер печатает справку.
+  dependencies = { "mason-org/mason.nvim" },
 
   config = function()
     local lint = require("lint")
