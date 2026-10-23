@@ -111,6 +111,8 @@ A full-featured IDE for Go development. The goal — match GoLand and VS Code in
 - **Inlay hints**, **code lens**, **semantic tokens**, **signature help** — all enabled
 - **Completion**: `blink.cmp` (Rust fuzzy) + `LuaSnip` + `friendly-snippets`
 - **Formatting on save**: `conform.nvim` → `gofumpt` + `goimports`
+- **Go struct tags**: `gomodifytags` — add `json` / `db` tags to every field of a struct with one key (`<leader>cj` / `cd` / `cx`)
+- **Lua**: `lazydev.nvim` — Neovim API types for `lua-language-server` (only in `.lua` files)
 - **Linting**: `nvim-lint` → `golangci-lint` (Go) + `hadolint` (Docker)
 
 ### Workflows
@@ -134,9 +136,9 @@ A full-featured IDE for Go development. The goal — match GoLand and VS Code in
 
 ### Appearance
 - **Colorscheme**: `kanagawa-paper` (ink, transparent)
-- **Statusline**: `lualine.nvim`
+- **Statusline**: `lualine.nvim` (buffer strip, error and warning counter)
 - **Treesitter**: 34 parsers (Go, YAML, JSON, TOML, Docker, Markdown, SQL, HTTP, ...)
-- **Icons**: `nvim-web-devicons` + `mini.icons` (Nerd Font required)
+- **Icons**: `mini.icons` (Nerd Font required)
 - **Indent guides**: `indent-blankline.nvim`
 - **TODO highlight**: `todo-comments.nvim`
 - **Color preview**: `nvim-colorizer.lua` (color swatch next to hex codes)
@@ -278,6 +280,8 @@ Below — a digest of the most frequently used keys. For the full layout (~250 b
 | `<Space>la` | Code action |
 | `<Space>lr` | Rename symbol |
 | `<Space>li` | Toggle inlay hints |
+| `<Space>cj` / `<Space>cd` | Go: `json` / `db` tags for the struct under the cursor |
+| `<Space>cx` | Go: remove `json` and `db` tags from the struct |
 | `]d` / `[d` | Next / previous diagnostic |
 
 ### Debug
@@ -363,7 +367,7 @@ Below — a digest of the most frequently used keys. For the full layout (~250 b
 │   │   ├── picker.lua                telescope + fzf-native
 │   │   ├── navigation.lua            aerial + ufo + harpoon + statuscol
 │   │   ├── search-replace.lua        grug-far
-│   │   ├── lsp.lua                   mason + lspconfig + signature + fidget
+│   │   ├── lsp.lua                   mason + lspconfig + signature + fidget + lazydev
 │   │   ├── completion.lua            blink.cmp + LuaSnip
 │   │   ├── formatting.lua            conform.nvim
 │   │   ├── linting.lua               nvim-lint

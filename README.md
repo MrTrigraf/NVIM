@@ -1,10 +1,8 @@
 <a id="top"></a>
 
 <!-- ============================================================
-     Language switcher (заглушка под будущую EN-версию).
-     README.en.md пока не создан — ссылка ведёт в 404.
-     Когда добавишь EN-версию, файл появится по этому пути и
-     ссылка заработает автоматически.
+     Language switcher: русская версия (этот файл) и английская
+     (README.en.md).
      ============================================================ -->
 
 <sub>🇷🇺 **Русский** &middot; [🇬🇧 English](README.en.md)</sub>
@@ -115,6 +113,8 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 - **Completion**: `blink.cmp` (Rust fuzzy) + `LuaSnip` + `friendly-snippets`
 - **Formatting on save**: `conform.nvim` → `gofumpt` + `goimports`
 - **Linting**: `nvim-lint` → `golangci-lint` (Go) + `hadolint` (Docker)
+- **Теги структур Go**: `gomodifytags` — теги `json` / `db` на все поля структуры одной клавишей (`<leader>cj` / `cd` / `cx`)
+- **Lua**: `lazydev.nvim` — типы Neovim API для `lua-language-server` (только в `.lua` файлах)
 
 ### Workflows
 - **Debug**: `nvim-dap` + `nvim-dap-go` + `nvim-dap-ui` — breakpoints, variables, call stack, REPL, watch
@@ -137,9 +137,9 @@ LSP, debug, тесты, HTTP, PostgreSQL, lazygit, lazydocker — всё под 
 
 ### Внешний вид
 - **Colorscheme**: `kanagawa-paper` (ink, transparent)
-- **Statusline**: `lualine.nvim`
+- **Statusline**: `lualine.nvim` (полоса буферов, счётчик ошибок и предупреждений)
 - **Treesitter**: 34 парсера (Go, YAML, JSON, TOML, Docker, Markdown, SQL, HTTP, ...)
-- **Icons**: `nvim-web-devicons` + `mini.icons` (требуется Nerd Font)
+- **Icons**: `mini.icons` (требуется Nerd Font)
 - **Indent guides**: `indent-blankline.nvim`
 - **TODO highlight**: `todo-comments.nvim`
 - **Color preview**: `nvim-colorizer.lua` (квадратик слева от hex-кода)
@@ -281,6 +281,8 @@ nvim
 | `<Space>la` | Code action |
 | `<Space>lr` | Rename symbol |
 | `<Space>li` | Toggle inlay hints |
+| `<Space>cj` / `<Space>cd` | Go: теги `json` / `db` для структуры под курсором |
+| `<Space>cx` | Go: убрать теги `json` и `db` у структуры |
 | `]d` / `[d` | Следующий / предыдущий диагностик |
 
 ### Debug
@@ -366,7 +368,7 @@ nvim
 │   │   ├── picker.lua                telescope + fzf-native
 │   │   ├── navigation.lua            aerial + ufo + harpoon + statuscol
 │   │   ├── search-replace.lua        grug-far
-│   │   ├── lsp.lua                   mason + lspconfig + signature + fidget
+│   │   ├── lsp.lua                   mason + lspconfig + signature + fidget + lazydev
 │   │   ├── completion.lua            blink.cmp + LuaSnip
 │   │   ├── formatting.lua            conform.nvim
 │   │   ├── linting.lua               nvim-lint
